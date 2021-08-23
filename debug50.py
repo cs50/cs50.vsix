@@ -82,9 +82,18 @@ def reset_socket(socket):
 
 
 def generate_config():
+
+    # Add arguments
+    if len(sys.argv) > 1:
+        for i in range(2, len(sys.argv)):
+            launch_configuration["configurations"][0]["args"].append(sys.argv[i])
+        launch_configuration["configurations"][0]["args"].append("&&")
+        launch_configuration["configurations"][0]["args"].append("exit")
+
     file = open(".vscode/launch.json", "w")
     file.write(json.dumps(launch_configuration))
     file.close()
+
 
 def activate(trigger):
     os.system(f"touch {trigger}")
@@ -110,17 +119,8 @@ def listen(socket):
 
 def main():
 
-    # Add arguments
-    if len(sys.argv) > 1:
-        for i in range(2, len(sys.argv)):
-            launch_configuration["configurations"][0]["args"].append(sys.argv[i])
-        launch_configuration["configurations"][0]["args"].append("&&")
-        launch_configuration["configurations"][0]["args"].append("exit")
-
     # Generate launch configuration and start the debugger
     generate_config()
-
-    # Launch debugger
     if ".py" in sys.argv[1]:
         activate(TRIGGER_PYTHON_DEBUG)
         listen(SOCKET)
@@ -130,6 +130,7 @@ def main():
         if (verify_executable(source, executable)):
             activate(TRIGGER_CPP_DEBUG)
             listen(SOCKET)
+
 
 if __name__ == "__main__":
     main()
