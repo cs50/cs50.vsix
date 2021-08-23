@@ -1,0 +1,9 @@
+out
+node_modules
+.vscode-test/
+.vscode
+*.vsix
+
+hello
+hello.c
+hello.py
