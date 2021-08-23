@@ -6,6 +6,8 @@ import pathlib
 import sys
 import time
 
+TRIGGER_PYTHON_DEBUG = ".vscode/debug50/triggers/python"
+TRIGGER_CPP_DEBUG = ".vscode/debug50/triggers/c"
 SOCKET = ".vscode/debug50/socket"
 
 # Launch configuration
@@ -79,7 +81,16 @@ def reset_socket(socket):
         f.write("")
 
 
-def observe(socket):
+def generate_config():
+    file = open(".vscode/launch.json", "w")
+    file.write(json.dumps(launch_configuration))
+    file.close()
+
+def activate(trigger):
+    os.system(f"touch {trigger}")
+
+
+def listen(socket):
     while True:
         time.sleep(0.5)
         f = open(socket)
@@ -107,20 +118,18 @@ def main():
         launch_configuration["configurations"][0]["args"].append("exit")
 
     # Generate launch configuration and start the debugger
-    file = open(".vscode/launch.json", "w")
-    file.write(json.dumps(launch_configuration))
-    file.close()
+    generate_config()
 
+    # Launch debugger
     if ".py" in sys.argv[1]:
-        os.system("touch .vscode/debug50/triggers/python")
-        observe(SOCKET)
-
+        activate(TRIGGER_PYTHON_DEBUG)
+        listen(SOCKET)
     else:
         source = sys.argv[1] + ".c"
         executable = sys.argv[1]
         if (verify_executable(source, executable)):
-            os.system("touch .vscode/debug50/triggers/c")
-            observe(SOCKET)
+            activate(TRIGGER_CPP_DEBUG)
+            listen(SOCKET)
 
 if __name__ == "__main__":
     main()
