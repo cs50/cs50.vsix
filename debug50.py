@@ -1,16 +1,15 @@
 #!/usr/bin/env python3
 
+import asyncio
 import json
 import os
 import pathlib
 import sys
 import time
+import websockets
 
-TRIGGER_PYTHON_DEBUG = ".vscode/debug50/triggers/python"
-TRIGGER_CPP_DEBUG = ".vscode/debug50/triggers/c"
-SOCKET = ".vscode/debug50/socket"
+SOCKET_URI = "ws://localhost:60001"
 
-# Launch configuration
 launch_configuration = {
     "version": "0.2.0",
     "configurations": [
@@ -44,6 +43,44 @@ launch_configuration = {
     ]
 }
 
+async def check_break_points():
+    async with websockets.connect(SOCKET_URI) as websocket:
+        await websocket.send("check_break_points")
+        response = await websocket.recv()
+        if not int(response) > 0:
+            no_break_points()
+
+
+async def start_c_debug():
+    async with websockets.connect(SOCKET_URI) as websocket:
+        await websocket.send("start_c_debug")
+
+
+async def start_python_debug():
+    async with websockets.connect(SOCKET_URI) as websocket:
+        await websocket.send("start_python_debug")
+
+
+async def monitor():
+    async with websockets.connect(SOCKET_URI) as websocket:
+        while True:
+            time.sleep(0.5)
+            response = await websocket.recv()
+            if response == "terminated_debugger":
+                break
+
+
+def generate_config():
+    if len(sys.argv) > 1:
+        for i in range(2, len(sys.argv)):
+            launch_configuration["configurations"][0]["args"].append(sys.argv[i])
+        launch_configuration["configurations"][0]["args"].append("&&")
+        launch_configuration["configurations"][0]["args"].append("exit")
+
+    file = open(".vscode/launch.json", "w")
+    file.write(json.dumps(launch_configuration))
+    file.close()
+
 
 def verify_executable(source, executable):
     sourceMTime = pathlib.Path(source).stat().st_mtime_ns
@@ -54,6 +91,14 @@ def verify_executable(source, executable):
         return False
 
     return True
+
+
+def no_break_points():
+    message = "Looks like you haven't set any breakpoints. "\
+                "Set at least one breakpoint by clicking to the "\
+                "left of a line number and then re-run debug50!"
+    print(decorate(message, "WARNING"))
+    sys.exit(1)
 
 
 def decorate(message, level):
@@ -71,66 +116,19 @@ def decorate(message, level):
     return bcolors[level] + message + bcolors[level]
 
 
-def read_socket(socket):
-    if os.path.isfile(socket):
-        return open(socket).readline().strip()
-
-
-def reset_socket(socket):
-    with open(socket, "w") as f:
-        f.write("")
-
-
-def generate_config():
-
-    # Add arguments
-    if len(sys.argv) > 1:
-        for i in range(2, len(sys.argv)):
-            launch_configuration["configurations"][0]["args"].append(sys.argv[i])
-        launch_configuration["configurations"][0]["args"].append("&&")
-        launch_configuration["configurations"][0]["args"].append("exit")
-
-    file = open(".vscode/launch.json", "w")
-    file.write(json.dumps(launch_configuration))
-    file.close()
-
-
-def activate(trigger):
-    os.system(f"touch {trigger}")
-
-
-def listen(socket):
-    while True:
-        time.sleep(0.5)
-        f = open(socket)
-        line = f.readline().strip()
-        if line == "no_break_points":
-            message = "Looks like you haven't set any breakpoints. "\
-              "Set at least one breakpoint by clicking to the "\
-              "left of a line number and then re-run debug50!"
-            print(decorate(message, "WARNING"))
-            reset_socket(SOCKET)
-            sys.exit(1)
-
-        if line == "debug_session_terminated":
-            reset_socket(SOCKET)
-            sys.exit(0)
-
-
 def main():
-
-    # Generate launch configuration and start the debugger
     generate_config()
+    asyncio.get_event_loop().run_until_complete(check_break_points())
     if ".py" in sys.argv[1]:
-        activate(TRIGGER_PYTHON_DEBUG)
-        listen(SOCKET)
+        asyncio.get_event_loop().run_until_complete(start_python_debug())
+
     else:
         source = sys.argv[1] + ".c"
         executable = sys.argv[1]
         if (verify_executable(source, executable)):
-            activate(TRIGGER_CPP_DEBUG)
-            listen(SOCKET)
+            asyncio.get_event_loop().run_until_complete(start_c_debug())
 
 
 if __name__ == "__main__":
     main()
+    asyncio.get_event_loop().run_until_complete(monitor())

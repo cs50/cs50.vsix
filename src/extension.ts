@@ -1,56 +1,49 @@
 import * as vscode from 'vscode';
-import { TextEncoder } from 'util';
+import WebSocket = require('ws');
 
-const CPP = "C";
-const PYTHON = "Python";
-const TRIGGER_PYTHON_DEBUG = ".vscode/debug50/triggers/python";
-const TRIGGER_CPP_DEBUG = ".vscode/debug50/triggers/c";
-const SOCKET = ".vscode/debug50/socket";
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
-const WORKSPACE_FOLDER_PATH = WORKSPACE_FOLDER.uri.path;
+const PORT = 60001;
+const LAUNCH_CONFIG_C = "C";
+const LAUNCH_CONFIG_PYTHON = "Python";
 
-export async function activate(context: vscode.ExtensionContext) {
-	init();
+let wss: WebSocket.Server | null = null;
+let ws: WebSocket | null = null;
 
-	// Setup fileWatcher
-	vscode.workspace.createFileSystemWatcher(
-		new vscode.RelativePattern(WORKSPACE_FOLDER, TRIGGER_PYTHON_DEBUG)
-	).onDidChange((uri) => {
-		if (checkBreakPoints()) {
-			vscode.debug.startDebugging(WORKSPACE_FOLDER, PYTHON);
+const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
+
+	wss = new WebSocket.Server({ port });
+
+	wss.on('connection', (connection: any) => {
+		ws = connection;
+		if (ws) {
+			ws.addEventListener('message', (event) => {
+				if (event.data == "check_break_points") {
+					ws.send(vscode.debug.breakpoints.length);
+				}
+				if (event.data == "start_c_debug") {
+					vscode.debug.startDebugging(WORKSPACE_FOLDER, LAUNCH_CONFIG_C);
+				}
+				if (event.data == "start_python_debug") {
+					vscode.debug.startDebugging(WORKSPACE_FOLDER, LAUNCH_CONFIG_PYTHON);
+				}
+			});
 		}
 	});
 
-	vscode.workspace.createFileSystemWatcher(
-		new vscode.RelativePattern(WORKSPACE_FOLDER, TRIGGER_CPP_DEBUG)
-	).onDidChange((uri) => {
-		if (checkBreakPoints()) {
-			vscode.debug.startDebugging(WORKSPACE_FOLDER, CPP);
-		}
-	});
+};
 
+export function activate({ subscriptions }: vscode.ExtensionContext) {
+	startWebsocketServer(PORT, [PORT + 1]);
+	vscode.debug.onDidStartDebugSession((event) => {
+		ws.send("started_debugger");
+	});
 	vscode.debug.onDidTerminateDebugSession((event) => {
-		notify("debug_session_terminated");
+		ws.send("terminated_debugger");
 	});
-
-	notify("debug50_activated");
 }
 
-function init() {
-	vscode.workspace.fs.writeFile(vscode.Uri.file(`${WORKSPACE_FOLDER_PATH}/${TRIGGER_PYTHON_DEBUG}`), new TextEncoder().encode());
-	vscode.workspace.fs.writeFile(vscode.Uri.file(`${WORKSPACE_FOLDER_PATH}/${TRIGGER_CPP_DEBUG}`), new TextEncoder().encode());
-	vscode.workspace.fs.writeFile(vscode.Uri.file(`${WORKSPACE_FOLDER_PATH}/${SOCKET}`), new TextEncoder().encode());
-}
-
-function checkBreakPoints() {
-	if (vscode.debug.breakpoints.length === 0) {
-		notify("no_break_points");
-		return false;
-	}
-	return true;
-}
-
-function notify(message: string) {
-	vscode.workspace.fs.writeFile(
-		vscode.Uri.file(`${WORKSPACE_FOLDER_PATH}/${SOCKET}`), new TextEncoder().encode(message));
+// this method is called when your extension is deactivated
+export function deactivate() {
+	ws?.close();
+	wss?.close();
 }
