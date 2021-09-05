@@ -88,6 +88,7 @@ def verify_executable(source, executable):
     if (sourceMTime > executableMTime):
         message = "Looks like you've changed your code. Recompile and then re-run debug50!"
         print(decorate(message, "WARNING"))
+        sys.exit(1)
         return False
 
     return True
