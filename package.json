@@ -1,10 +1,10 @@
 {
-	"name": "debug50",
-	"displayName": "Debug50",
-	"description": "Debug50",
+	"name": "cs50",
+	"displayName": "CS50",
+	"description": "A CS50 Visual Studio Code extension",
 	"version": "0.0.1",
 	"publisher": "cs50",
-	"repository": "https://github.com/cs50/debug50",
+	"repository": "https://github.com/cs50/cs50vsix",
 	"engines": {
 		"vscode": "^1.34.0"
 	},
