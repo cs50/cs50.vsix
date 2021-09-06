@@ -74,9 +74,8 @@ async def launch():
 async def launch_debugger(name, filename):
     websocket = await websockets.connect(SOCKET_URI)
     payload = {
-        "command": "start_c_debug",
         "path": os.path.abspath(filename),
-        "config": generate_config(name)
+        "launch_config": get_config(name)
     }
     await websocket.send(json.dumps(payload))
     response = await websocket.recv()
@@ -91,7 +90,7 @@ async def monitor():
             return
 
 
-def generate_config(config_name):
+def get_config(config_name):
     if len(sys.argv) > 1:
         for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
             each["program"] = "${workspaceFolder}/" + sys.argv[1]
