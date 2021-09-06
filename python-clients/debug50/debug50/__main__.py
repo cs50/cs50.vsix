@@ -67,6 +67,9 @@ async def launch():
     except asyncio.TimeoutError:
         failed_to_start_debugger()
     
+    except FileNotFoundError:
+        executable_not_found()
+        
     except OSError as e:
         failed_to_connect_debug_service()
 
@@ -110,6 +113,7 @@ def get_file_extension(path):
 def verify_executable(source, executable):
     if (not os.path.isfile(source)) or (get_file_extension(source) != ".c"):
         file_not_supported()
+        
 
     sourceMTime = pathlib.Path(source).stat().st_mtime_ns
     executableMTime = pathlib.Path(executable).stat().st_mtime_ns
@@ -123,6 +127,12 @@ def verify_executable(source, executable):
 
 def file_not_supported():
     message = "Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?"
+    print(decorate(message, "WARNING"))
+    sys.exit(1)
+
+
+def executable_not_found():
+    message = "Executable not found! Did you compile your code?"
     print(decorate(message, "WARNING"))
     sys.exit(1)
 
