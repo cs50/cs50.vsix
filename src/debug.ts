@@ -28,18 +28,23 @@ let ws: WebSocket | null = null;
 vscode.debug.breakpoints
 
 const startDebugger = (workspace_folder, launch_config, path) => {
+	let didSetBreakpoints = false;
 	let didStartDebugger = false;
 	let breakpoints = vscode.debug.breakpoints;
 	for (var each in vscode.debug.breakpoints) {
 		let breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
 		if (breakpoint.location.uri.path === path) {
-			vscode.debug.startDebugging(workspace_folder, launch_config);
-			didStartDebugger = true;
+			didSetBreakpoints = true;
+			vscode.debug.startDebugging(workspace_folder, launch_config)?.then(() => {
+				didStartDebugger = true;
+			});
 		}
 	}
-	if (!didStartDebugger) {
-		console.log("no_break_points")
+	if (!didSetBreakpoints) {
 		ws.send("no_break_points")
+	}
+	else if (!didStartDebugger) {
+		ws.send("failed_to_start_debugger")
 	}
 }
 

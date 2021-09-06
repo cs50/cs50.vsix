@@ -51,6 +51,11 @@ async def start_c_debug(full_path):
             "path": full_path
         }
         await websocket.send(json.dumps(payload))
+        response = await websocket.recv()
+        if response == "no_break_points":
+            no_break_points()
+        if response == "failed_to_start_debugger":
+            failed_to_start_debugger()
 
 
 async def start_python_debug(full_path):
@@ -63,6 +68,8 @@ async def start_python_debug(full_path):
         response = await websocket.recv()
         if response == "no_break_points":
             no_break_points()
+        if response == "failed_to_start_debugger":
+            failed_to_start_debugger()
 
 
 async def monitor():
@@ -106,6 +113,12 @@ def verify_executable(source, executable):
     return True
 
 
+def file_not_supported():
+    message = "Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?"
+    print(decorate(message, "WARNING"))
+    sys.exit(1)
+
+
 def no_break_points():
     message = "Looks like you haven't set any breakpoints. "\
                 "Set at least one breakpoint by clicking to the "\
@@ -114,9 +127,9 @@ def no_break_points():
     sys.exit(1)
 
 
-def file_not_supported():
-    message = "Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?"
-    print(decorate(message, "WARNING"))
+def failed_to_start_debugger():
+    message = "Could not start debugger"
+    print(decorate(message, "FAIL"))
     sys.exit(1)
 
 
