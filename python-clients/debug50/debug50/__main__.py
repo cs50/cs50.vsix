@@ -43,40 +43,58 @@ LAUNCH_CONFIG = {
     ]
 }
 
+async def launch():
+
+    generate_config()
+    
+    try:
+
+        # Start python debugger
+        if get_file_extension(sys.argv[1]) == ".py":
+            await asyncio.wait_for(start_python_debug(os.path.abspath(sys.argv[1])), timeout=2)
+        
+        # Start c/cpp debugger
+        else:
+            source = sys.argv[1] + ".c"
+            executable = sys.argv[1]
+            if (verify_executable(source, executable)):
+                await asyncio.wait_for(start_c_debug(os.path.abspath(source)), timeout=2)
+        
+        # Monitoring interactive debugger
+        await monitor()
+    except asyncio.TimeoutError:
+        failed_to_start_debugger()
+
 
 async def start_c_debug(full_path):
-    async with websockets.connect(SOCKET_URI) as websocket:
-        payload = {
-            "command": "start_c_debug",
-            "path": full_path
-        }
-        await websocket.send(json.dumps(payload))
-        response = await websocket.recv()
-        if response == "no_break_points":
-            no_break_points()
-        if response != "started_debugger":
-            failed_to_start_debugger()
+    websocket = await websockets.connect(SOCKET_URI)
+    payload = {
+        "command": "start_c_debug",
+        "path": full_path
+    }
+    await websocket.send(json.dumps(payload))
+    response = await websocket.recv()
+    if response == "no_break_points":
+        no_break_points()
 
 
 async def start_python_debug(full_path):
-    async with websockets.connect(SOCKET_URI) as websocket:
-        payload = {
-            "command": "start_python_debug",
-            "path": full_path
-        }
-        await websocket.send(json.dumps(payload))
-        response = await websocket.recv()
-        if response == "no_break_points":
-            no_break_points()
-        if response != "started_debugger":
-            failed_to_start_debugger()
+    websocket = await websockets.connect(SOCKET_URI)
+    payload = {
+        "command": "start_python_debug",
+        "path": full_path
+    }
+    await websocket.send(json.dumps(payload))
+    response = await websocket.recv()
+    if response == "no_break_points":
+        no_break_points()
 
 
 async def monitor():
     async with websockets.connect(SOCKET_URI) as websocket:
         response = await websocket.recv()
         if response == "terminated_debugger":
-            sys.exit(0)
+            return
 
 
 def generate_config():
@@ -145,22 +163,7 @@ def decorate(message, level):
 
 
 def main():
-
-    generate_config()
-    
-    # Start python debugger
-    if get_file_extension(sys.argv[1]) == ".py":
-        asyncio.get_event_loop().run_until_complete(start_python_debug(os.path.abspath(sys.argv[1])))
-    
-    # Start c/cpp debugger
-    else:
-        source = sys.argv[1] + ".c"
-        executable = sys.argv[1]
-        if (verify_executable(source, executable)):
-            asyncio.get_event_loop().run_until_complete(start_c_debug(os.path.abspath(source)))
-    
-    # Monitoring interactive debugger
-    asyncio.get_event_loop().run_until_complete(monitor())
+    asyncio.get_event_loop().run_until_complete(launch())
 
 
 if __name__ == "__main__":

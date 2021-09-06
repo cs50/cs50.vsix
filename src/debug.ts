@@ -38,7 +38,6 @@ const startDebugger = (workspace_folder, launch_config, path) => {
 		}
 	}
 	if (!didSetBreakpoints) {
-		console.log("no break points")
 		ws.send("no_break_points")
 	}
 }
