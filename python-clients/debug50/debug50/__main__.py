@@ -64,11 +64,11 @@ async def launch():
         # Monitoring interactive debugger
         await monitor()
 
+    except IndexError:
+        display_usage()
+
     except asyncio.TimeoutError:
         failed_to_start_debugger()
-    
-    except FileNotFoundError:
-        executable_not_found()
         
     except OSError as e:
         failed_to_connect_debug_service()
@@ -113,7 +113,9 @@ def get_file_extension(path):
 def verify_executable(source, executable):
     if (not os.path.isfile(source)) or (get_file_extension(source) != ".c"):
         file_not_supported()
-        
+    
+    if (not os.path.isfile(executable)):
+        executable_not_found()
 
     sourceMTime = pathlib.Path(source).stat().st_mtime_ns
     executableMTime = pathlib.Path(executable).stat().st_mtime_ns
@@ -154,6 +156,10 @@ def failed_to_start_debugger():
 def failed_to_connect_debug_service():
     message = "Debug service is not ready yet. Please try again."
     print(decorate(message, "WARNING"))
+
+
+def display_usage():
+    print("Usage: debug50 PROGRAM [ARGUMENT ...]")
 
 
 def decorate(message, level):
