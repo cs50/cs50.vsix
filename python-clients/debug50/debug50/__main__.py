@@ -61,8 +61,13 @@ async def launch():
         
         # Monitoring interactive debugger
         await monitor()
+
     except asyncio.TimeoutError:
         failed_to_start_debugger()
+    
+    except OSError as e:
+        failed_to_connect_debug_service()
+
 
 
 async def start_c_debug(full_path):
@@ -144,6 +149,11 @@ def failed_to_start_debugger():
     message = "Could not start debugger"
     print(decorate(message, "FAIL"))
     sys.exit(1)
+
+
+def failed_to_connect_debug_service():
+    message = "Debug service is not ready yet. Please try again."
+    print(decorate(message, "WARNING"))
 
 
 def decorate(message, level):
