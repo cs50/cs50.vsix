@@ -8,6 +8,7 @@ import sys
 import websockets
 
 SOCKET_URI = "ws://localhost:60001"
+DEBUGGER_TIMEOUT = 5
 
 LAUNCH_CONFIG = {
     "version": "0.2.0",
@@ -50,14 +51,14 @@ async def launch():
 
         # Start python debugger
         if get_file_extension(sys.argv[1]) == ".py":
-            await asyncio.wait_for(start_python_debug(os.path.abspath(sys.argv[1])), timeout=2)
+            await asyncio.wait_for(start_python_debug(os.path.abspath(sys.argv[1])), timeout=DEBUGGER_TIMEOUT)
         
         # Start c/cpp debugger
         else:
             source = sys.argv[1] + ".c"
             executable = sys.argv[1]
             if (verify_executable(source, executable)):
-                await asyncio.wait_for(start_c_debug(os.path.abspath(source)), timeout=2)
+                await asyncio.wait_for(start_c_debug(os.path.abspath(source)), timeout=DEBUGGER_TIMEOUT)
         
         # Monitoring interactive debugger
         await monitor()
