@@ -10,7 +10,7 @@ import websockets
 
 SOCKET_URI = "ws://localhost:60001"
 
-launch_configuration = {
+LAUNCH_CONFIG = {
     "version": "0.2.0",
     "configurations": [
         {
@@ -73,23 +73,29 @@ async def monitor():
 def generate_config():
     if len(sys.argv) > 1:
         for i in range(2, len(sys.argv)):
-            launch_configuration["configurations"][0]["args"].append(sys.argv[i])
-        launch_configuration["configurations"][0]["args"].append("&&")
-        launch_configuration["configurations"][0]["args"].append("exit")
+            LAUNCH_CONFIG["configurations"][0]["args"].append(sys.argv[i])
+        LAUNCH_CONFIG["configurations"][0]["args"].append("&&")
+        LAUNCH_CONFIG["configurations"][0]["args"].append("exit")
 
     file = open(".vscode/launch.json", "w")
-    file.write(json.dumps(launch_configuration))
+    file.write(json.dumps(LAUNCH_CONFIG))
     file.close()
 
 
+def get_file_extension(path):
+    return pathlib.Path(path).suffix
+
+
 def verify_executable(source, executable):
+    if (not os.path.isfile(source)) or (get_file_extension(source) != ".c"):
+        file_not_supported()
+
     sourceMTime = pathlib.Path(source).stat().st_mtime_ns
     executableMTime = pathlib.Path(executable).stat().st_mtime_ns
     if (sourceMTime > executableMTime):
         message = "Looks like you've changed your code. Recompile and then re-run debug50!"
         print(decorate(message, "WARNING"))
         sys.exit(1)
-        return False
 
     return True
 
@@ -101,6 +107,11 @@ def no_break_points():
     print(decorate(message, "WARNING"))
     sys.exit(1)
 
+
+def file_not_supported():
+    message = "Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?"
+    print(decorate(message, "WARNING"))
+    sys.exit(1)
 
 def decorate(message, level):
     bcolors = {
@@ -120,9 +131,12 @@ def decorate(message, level):
 def main():
     generate_config()
     asyncio.get_event_loop().run_until_complete(check_break_points())
-    if ".py" in sys.argv[1]:
+    
+    # Start python debugger
+    if get_file_extension(sys.argv[1]) == ".py":
         asyncio.get_event_loop().run_until_complete(start_python_debug())
-
+    
+    # Start c/cpp debugger
     else:
         source = sys.argv[1] + ".c"
         executable = sys.argv[1]
@@ -131,6 +145,6 @@ def main():
     
     asyncio.get_event_loop().run_until_complete(monitor())
 
+
 if __name__ == "__main__":
     main()
-

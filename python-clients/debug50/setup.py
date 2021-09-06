@@ -1,6 +1,5 @@
 import setuptools
 
-
 setuptools.setup(
     name="debug50",
     version="1.0.0",
