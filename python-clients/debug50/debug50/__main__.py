@@ -5,7 +5,6 @@ import json
 import os
 import pathlib
 import sys
-import time
 import websockets
 
 SOCKET_URI = "ws://localhost:60001"
