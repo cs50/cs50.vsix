@@ -29,22 +29,17 @@ vscode.debug.breakpoints
 
 const startDebugger = (workspace_folder, launch_config, path) => {
 	let didSetBreakpoints = false;
-	let didStartDebugger = false;
 	let breakpoints = vscode.debug.breakpoints;
 	for (var each in vscode.debug.breakpoints) {
 		let breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
 		if (breakpoint.location.uri.path === path) {
 			didSetBreakpoints = true;
-			vscode.debug.startDebugging(workspace_folder, launch_config)?.then(() => {
-				didStartDebugger = true;
-			});
+			vscode.debug.startDebugging(workspace_folder, launch_config)
 		}
 	}
 	if (!didSetBreakpoints) {
+		console.log("no break points")
 		ws.send("no_break_points")
-	}
-	else if (!didStartDebugger) {
-		ws.send("failed_to_start_debugger")
 	}
 }
 
@@ -64,7 +59,7 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 			});
 		}
 	});
-
+	
 	vscode.debug.onDidStartDebugSession((event) => {
 		ws.send("started_debugger");
 	});

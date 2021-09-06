@@ -54,7 +54,7 @@ async def start_c_debug(full_path):
         response = await websocket.recv()
         if response == "no_break_points":
             no_break_points()
-        if response == "failed_to_start_debugger":
+        if response != "started_debugger":
             failed_to_start_debugger()
 
 
@@ -68,19 +68,15 @@ async def start_python_debug(full_path):
         response = await websocket.recv()
         if response == "no_break_points":
             no_break_points()
-        if response == "failed_to_start_debugger":
+        if response != "started_debugger":
             failed_to_start_debugger()
 
 
 async def monitor():
     async with websockets.connect(SOCKET_URI) as websocket:
-        while True:
-            time.sleep(0.1)
-            response = await websocket.recv()
-            if response == "no_break_points":
-                no_break_points()
-            if response == "terminated_debugger":
-                break
+        response = await websocket.recv()
+        if response == "terminated_debugger":
+            sys.exit(0)
 
 
 def generate_config():
