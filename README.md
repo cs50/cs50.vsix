@@ -2,19 +2,14 @@
 
 A Visual Studio Code (VS Code) extension that runs a built-in graphical debugger inside VS Code.
 
-### Installation
+### Package and Install Extension
 ```
 npm install
-npm install -g vsce
-vsce package
+./node_modules/vsce/out/vsce package
 code --install-extension cs50-0.0.1.vsix
 ```
 
-### debug50 Usage
+### Install debug50 python client
 ```
-chmod +x ./debug50.py
-./debug50.py hello.py
-./debug50.py hello
+pip3 install ./python-clients/debug50/
 ```
-
-This tool is currently under development.
