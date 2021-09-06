@@ -9,8 +9,9 @@ import websockets
 
 DEBUGGER_TIMEOUT = 5
 SOCKET_URI = "ws://localhost:60001"
-LAUNCH_CONFIG_C = "C"
-LAUNCH_CONFIG_PYTHON = "Python"
+
+LAUNCH_CONFIG_C = "c"
+LAUNCH_CONFIG_PYTHON = "python"
 
 LAUNCH_CONFIG = {
     "version": "0.2.0",
@@ -41,13 +42,6 @@ LAUNCH_CONFIG = {
             "program": "",
             "args": [],
             "console": "integratedTerminal"
-        },
-        {
-            "name": "Python: Current File",
-            "type": "python",
-            "request": "launch",
-            "program": "${file}",
-            "console": "integratedTerminal"
         }
     ]
 }
@@ -58,14 +52,14 @@ async def launch():
 
         # Start python debugger
         if get_file_extension(sys.argv[1]) == ".py":
-            await asyncio.wait_for(start_python_debug(os.path.abspath(sys.argv[1])), timeout=DEBUGGER_TIMEOUT)
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, sys.argv[1]), timeout=DEBUGGER_TIMEOUT)
         
         # Start c/cpp debugger
         else:
             source = sys.argv[1] + ".c"
             executable = sys.argv[1]
             if (verify_executable(source, executable)):
-                await asyncio.wait_for(start_c_debug(os.path.abspath(source)), timeout=DEBUGGER_TIMEOUT)
+                await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source), timeout=DEBUGGER_TIMEOUT)
         
         # Monitoring interactive debugger
         await monitor()
@@ -77,25 +71,11 @@ async def launch():
         failed_to_connect_debug_service()
 
 
-async def start_c_debug(full_path):
-    generate_config(LAUNCH_CONFIG_C)
+async def launch_debugger(name, filename):
     websocket = await websockets.connect(SOCKET_URI)
     payload = {
-        "command": "start_c_debug",
-        "path": full_path
-    }
-    await websocket.send(json.dumps(payload))
-    response = await websocket.recv()
-    if response == "no_break_points":
-        no_break_points()
-
-
-async def start_python_debug(full_path):
-    generate_config(LAUNCH_CONFIG_PYTHON)
-    websocket = await websockets.connect(SOCKET_URI)
-    payload = {
-        "command": "start_python_debug",
-        "path": full_path
+        "path": os.path.abspath(filename),
+        "launch_config": get_config(name)
     }
     await websocket.send(json.dumps(payload))
     response = await websocket.recv()
@@ -110,7 +90,7 @@ async def monitor():
             return
 
 
-def generate_config(config_name):
+def get_config(config_name):
     if len(sys.argv) > 1:
         for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
             each["program"] = "${workspaceFolder}/" + sys.argv[1]
@@ -120,10 +100,7 @@ def generate_config(config_name):
             
             each["args"].append("&&")
             each["args"].append("exit")
-
-    file = open(".vscode/launch.json", "w")
-    file.write(json.dumps(LAUNCH_CONFIG, sort_keys=False, indent=4))
-    file.close()
+            return each
 
 
 def get_file_extension(path):
