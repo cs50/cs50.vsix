@@ -128,8 +128,9 @@ def main():
         executable = sys.argv[1]
         if (verify_executable(source, executable)):
             asyncio.get_event_loop().run_until_complete(start_c_debug())
-
+    
+    asyncio.get_event_loop().run_until_complete(monitor())
 
 if __name__ == "__main__":
     main()
-    asyncio.get_event_loop().run_until_complete(monitor())
+
