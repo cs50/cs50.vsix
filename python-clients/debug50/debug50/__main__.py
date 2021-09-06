@@ -43,29 +43,35 @@ LAUNCH_CONFIG = {
     ]
 }
 
-async def check_break_points():
+
+async def start_c_debug(full_path):
     async with websockets.connect(SOCKET_URI) as websocket:
-        await websocket.send("check_break_points")
+        payload = {
+            "command": "start_c_debug",
+            "path": full_path
+        }
+        await websocket.send(json.dumps(payload))
+
+
+async def start_python_debug(full_path):
+    async with websockets.connect(SOCKET_URI) as websocket:
+        payload = {
+            "command": "start_python_debug",
+            "path": full_path
+        }
+        await websocket.send(json.dumps(payload))
         response = await websocket.recv()
-        if not int(response) > 0:
+        if response == "no_break_points":
             no_break_points()
-
-
-async def start_c_debug():
-    async with websockets.connect(SOCKET_URI) as websocket:
-        await websocket.send("start_c_debug")
-
-
-async def start_python_debug():
-    async with websockets.connect(SOCKET_URI) as websocket:
-        await websocket.send("start_python_debug")
 
 
 async def monitor():
     async with websockets.connect(SOCKET_URI) as websocket:
         while True:
-            time.sleep(0.5)
+            time.sleep(0.1)
             response = await websocket.recv()
+            if response == "no_break_points":
+                no_break_points()
             if response == "terminated_debugger":
                 break
 
@@ -113,6 +119,7 @@ def file_not_supported():
     print(decorate(message, "WARNING"))
     sys.exit(1)
 
+
 def decorate(message, level):
     bcolors = {
         "HEADER": '\033[95m',
@@ -129,20 +136,21 @@ def decorate(message, level):
 
 
 def main():
+
     generate_config()
-    asyncio.get_event_loop().run_until_complete(check_break_points())
     
     # Start python debugger
     if get_file_extension(sys.argv[1]) == ".py":
-        asyncio.get_event_loop().run_until_complete(start_python_debug())
+        asyncio.get_event_loop().run_until_complete(start_python_debug(os.path.abspath(sys.argv[1])))
     
     # Start c/cpp debugger
     else:
         source = sys.argv[1] + ".c"
         executable = sys.argv[1]
         if (verify_executable(source, executable)):
-            asyncio.get_event_loop().run_until_complete(start_c_debug())
+            asyncio.get_event_loop().run_until_complete(start_c_debug(os.path.abspath(source)))
     
+    # Monitoring interactive debugger
     asyncio.get_event_loop().run_until_complete(monitor())
 
 
