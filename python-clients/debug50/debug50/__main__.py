@@ -7,46 +7,53 @@ import pathlib
 import sys
 import websockets
 
-SOCKET_URI = "ws://localhost:60001"
 DEBUGGER_TIMEOUT = 5
+SOCKET_URI = "ws://localhost:60001"
+LAUNCH_CONFIG_C = "C"
+LAUNCH_CONFIG_PYTHON = "Python"
 
 LAUNCH_CONFIG = {
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python",
-            "type": "python",
-            "request": "launch",
-            "program": "${workspaceFolder}/" + sys.argv[1],
-            "args": [],
-            "console": "integratedTerminal"
-        },
-        {
-            "name": "C",
+            "name": LAUNCH_CONFIG_C,
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/" + sys.argv[1],
+            "program": "",
             "args": [],
-            "stopAtEntry": "false",
+            "stopAtEntry": False,
             "cwd": "${fileDirname}",
             "environment": [],
-            "externalConsole": "false",
+            "externalConsole": False,
             "MIMode": "gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
-                    "ignoreFailures": "true"
+                    "ignoreFailures": True
                 }
             ]
+        },
+        {
+            "name": LAUNCH_CONFIG_PYTHON,
+            "type": "python",
+            "request": "launch",
+            "program": "",
+            "args": [],
+            "console": "integratedTerminal"
+        },
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
         }
     ]
 }
 
-async def launch():
 
-    generate_config()
-    
+async def launch():
     try:
 
         # Start python debugger
@@ -70,8 +77,8 @@ async def launch():
         failed_to_connect_debug_service()
 
 
-
 async def start_c_debug(full_path):
+    generate_config(LAUNCH_CONFIG_C)
     websocket = await websockets.connect(SOCKET_URI)
     payload = {
         "command": "start_c_debug",
@@ -84,6 +91,7 @@ async def start_c_debug(full_path):
 
 
 async def start_python_debug(full_path):
+    generate_config(LAUNCH_CONFIG_PYTHON)
     websocket = await websockets.connect(SOCKET_URI)
     payload = {
         "command": "start_python_debug",
@@ -102,15 +110,19 @@ async def monitor():
             return
 
 
-def generate_config():
+def generate_config(config_name):
     if len(sys.argv) > 1:
-        for i in range(2, len(sys.argv)):
-            LAUNCH_CONFIG["configurations"][0]["args"].append(sys.argv[i])
-        LAUNCH_CONFIG["configurations"][0]["args"].append("&&")
-        LAUNCH_CONFIG["configurations"][0]["args"].append("exit")
+        for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
+            each["program"] = "${workspaceFolder}/" + sys.argv[1]
+
+            for i in range(2, len(sys.argv)):
+                each["args"].append(sys.argv[i])
+            
+            each["args"].append("&&")
+            each["args"].append("exit")
 
     file = open(".vscode/launch.json", "w")
-    file.write(json.dumps(LAUNCH_CONFIG))
+    file.write(json.dumps(LAUNCH_CONFIG, sort_keys=False, indent=4))
     file.close()
 
 
