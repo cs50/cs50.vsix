@@ -73,11 +73,11 @@ async def launch():
 
 async def launch_debugger(name, filename):
     websocket = await websockets.connect(SOCKET_URI)
-    payload = {
+    customDebugConfiguration = {
         "path": os.path.abspath(filename),
         "launch_config": get_config(name)
     }
-    await websocket.send(json.dumps(payload))
+    await websocket.send(json.dumps(customDebugConfiguration))
     response = await websocket.recv()
     if response == "no_break_points":
         no_break_points()
