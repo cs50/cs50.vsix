@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import WebSocket = require('ws');
 import { startDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
-import { customDebugConfiguration } from './interfaces';
 
 const PORT = 60001;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -10,14 +9,27 @@ const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 let wss: WebSocket.Server | null = null;
 let ws: WebSocket | null = null;
 
+interface payload {
+	"command": string,
+	// eslint-disable-next-line @typescript-eslint/ban-types
+	"payload": Object
+}
+
 const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
 		ws = connection;
 		if (ws) {
 			ws.addEventListener('message', (event) => {
-				const payload: customDebugConfiguration = JSON.parse(event.data);
-				startDebugger(WORKSPACE_FOLDER, payload, ws);
+				const data: payload = JSON.parse(event.data);
+				console.log(data);
+				if (data.command === "start_debugger") {
+					const payload = data.payload;
+					startDebugger(WORKSPACE_FOLDER, payload, ws);
+				}
+				if (data.command === "execute_command") {
+					vscode.commands.executeCommand(JSON.stringify(data.payload).replace(/['"]+/g, ""));
+				}
 			});
 		}
 	});

@@ -5,7 +5,7 @@ import {customDebugConfiguration, breakpoint} from './interfaces';
 // Initialization
 vscode.debug.breakpoints;
 
-const startDebugger = (workspace_folder, config: customDebugConfiguration, ws) => {
+const startDebugger = (workspace_folder, config, ws) => {
 	let didSetBreakpoints = false;
 	const breakpoints = vscode.debug.breakpoints;
 	for (const each in vscode.debug.breakpoints) {
