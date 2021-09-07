@@ -1,8 +1,5 @@
-.DS_Store
 out
+dist
 node_modules
 .vscode-test/
-.vscode
 *.vsix
-hello*
-api_test.py
