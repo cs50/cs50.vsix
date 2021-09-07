@@ -15,8 +15,13 @@ async def execute(command):
     }
     await websocket.send(json.dumps(payload))
 
+
 def main():
-    asyncio.get_event_loop().run_until_complete(execute(sys.argv[1]))
+    try:
+        asyncio.get_event_loop().run_until_complete(execute(sys.argv[1]))
+    except:
+        print("Usage: command50 COMMAND")
+
 
 if __name__ == "__main__":
     main()
