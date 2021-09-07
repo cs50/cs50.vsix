@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import WebSocket = require('ws');
 
 // Initialization
-vscode.debug.breakpoints
+vscode.debug.breakpoints;
 
 interface customDebugConfiguration {
 	"path": string
@@ -31,19 +31,19 @@ const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
 const startDebugger = (workspace_folder, config: customDebugConfiguration) => {
 	let didSetBreakpoints = false;
-	let breakpoints = vscode.debug.breakpoints;
-	for (var each in vscode.debug.breakpoints) {
-		let breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
+	const breakpoints = vscode.debug.breakpoints;
+	for (const each in vscode.debug.breakpoints) {
+		const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
 		if (breakpoint.location.uri.path === config.path) {
 			didSetBreakpoints = true;
-			let debugConfiguration:vscode.DebugConfiguration = config.launch_config
-			vscode.debug.startDebugging(workspace_folder, debugConfiguration)
+			const debugConfiguration:vscode.DebugConfiguration = config.launch_config;
+			vscode.debug.startDebugging(workspace_folder, debugConfiguration);
 		}
 	}
 	if (!didSetBreakpoints) {
-		ws.send("no_break_points")
+		ws.send("no_break_points");
 	}
-}
+};
 
 const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
 	wss = new WebSocket.Server({ port });
@@ -51,8 +51,8 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 		ws = connection;
 		if (ws) {
 			ws.addEventListener('message', (event) => {
-				let payload: customDebugConfiguration = JSON.parse(event.data)
-				startDebugger(WORKSPACE_FOLDER, payload)
+				const payload: customDebugConfiguration = JSON.parse(event.data);
+				startDebugger(WORKSPACE_FOLDER, payload);
 			});
 		}
 	});
@@ -69,7 +69,7 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 const stopWebsocketServer = async(): Promise<void> => {
 	ws?.close();
 	wss?.close();
-}
+};
 
-export {startWebsocketServer}
-export {stopWebsocketServer}
+export {startWebsocketServer};
+export {stopWebsocketServer};
