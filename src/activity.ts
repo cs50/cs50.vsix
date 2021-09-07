@@ -37,16 +37,17 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 				<head>
 					<meta charset="UTF-8">
 					<meta name="viewport" content="width=device-width, initial-scale=1.0">
+					<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 					<title>CS50</title>
 				</head>
 				
-				<body>
-                	<button id="button">REBUILD CODESPACE</button>
+				<body class="bg-transparent">
+				<button id="rebuild" type="button" class="h5 btn btn-danger">Rebuild Codespace</button>
 				</body>
 
 				<script>
 				const vscode = acquireVsCodeApi();
-				document.getElementById("button").onclick = function hello() {
+				document.getElementById("rebuild").onclick = function hello() {
 					vscode.postMessage({
 						command: "rebuild"
 					})
