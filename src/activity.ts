@@ -25,6 +25,17 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 					case "rebuild":
 						vscode.commands.executeCommand("github.codespaces.rebuildEnvironment");
 						return;
+					case "update":
+						if (vscode.window.activeTerminal == undefined) {
+							vscode.window.createTerminal();
+							vscode.commands.executeCommand("workbench.action.terminal.toggleTerminal");
+							setTimeout(() => {
+								vscode.window.activeTerminal?.sendText("update50");
+							}, 1000);
+							return;
+						}
+						vscode.window.activeTerminal?.sendText("update50");
+						return;
 				}
 			}
 		);
@@ -42,12 +53,20 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 				</head>
 				
 				<body class="bg-transparent">
-				<button id="rebuild" type="button" class="h5 btn btn-danger">Rebuild Codespace</button>
+					<div class="span2">
+						<button id="btn-update" type="button" class="h5 btn btn-success btn-block">Update Codespace</button>
+						<button id="btn-rebuild" type="button" class="h5 btn btn-danger btn-block">Rebuild Codespace</button>
+					</div>
 				</body>
 
 				<script>
 				const vscode = acquireVsCodeApi();
-				document.getElementById("rebuild").onclick = function hello() {
+				document.getElementById("btn-update").onclick = function hello() {
+					vscode.postMessage({
+						command: "update"
+					})
+				}
+				document.getElementById("btn-rebuild").onclick = function hello() {
 					vscode.postMessage({
 						command: "rebuild"
 					})
