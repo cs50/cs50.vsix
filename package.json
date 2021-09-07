@@ -21,6 +21,26 @@
 		"lint": "eslint . --ext .ts,.tsx",
 		"watch": "tsc -watch -p ./"
 	},
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "cs50",
+					"title": "CS50",
+					"icon": "resources/cs50.svg"
+				}
+			]
+		},
+		"views": {
+			"cs50": [
+				{
+					"id": "cs50.activityView",
+					"name": "Codespace",
+					"type": "webview"
+				}
+			]
+		}
+	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
 		"@types/vscode": "^1.34.0",
