@@ -22,21 +22,21 @@
 		"watch": "tsc -watch -p ./"
 	},
 	"contributes": {
-		"viewsContainers": {
-			"activitybar": [
-				{
-					"id": "cs50",
-					"title": "CS50",
-					"icon": "resources/cs50.svg"
-				}
-			]
-		},
 		"views": {
 			"cs50": [
 				{
 					"id": "cs50.activityView",
-					"name": "Codespace",
+					"name": "CS50 Menu",
 					"type": "webview"
+				}
+			]
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "cs50",
+					"title": "CS50 Menu",
+					"icon": "resources/cs50.svg"
 				}
 			]
 		}
