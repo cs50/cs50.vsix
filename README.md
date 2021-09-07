@@ -9,7 +9,7 @@ npm install
 code --install-extension cs50-0.0.1.vsix
 ```
 
-### Install debug50 python client
+### Install Python client
 ```
-pip3 install ./python-clients/debug50/
+pip3 install ./python-clients/cs50vsix-client/
 ```
