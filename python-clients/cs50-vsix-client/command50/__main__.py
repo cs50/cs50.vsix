@@ -9,9 +9,17 @@ SOCKET_URI = "ws://localhost:60001"
 
 async def execute(command):
     websocket = await websockets.connect(SOCKET_URI)
+    
+    args = ""
+    if len(sys.argv) > 2:
+        args = sys.argv[2:]
+    
     payload = {
         "command": "execute_command",
-        "payload": command
+        "payload": {
+            "command": command,
+            "args": args
+        }
     }
     await websocket.send(json.dumps(payload))
 

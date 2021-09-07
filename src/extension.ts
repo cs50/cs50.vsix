@@ -15,6 +15,11 @@ interface payload {
 	"payload": Object
 }
 
+interface commandPayload {
+	"command": string,
+	"args": []
+}
+
 const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
@@ -22,13 +27,14 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 		if (ws) {
 			ws.addEventListener('message', (event) => {
 				const data: payload = JSON.parse(event.data);
-				console.log(data);
 				if (data.command === "start_debugger") {
 					const payload = data.payload;
 					startDebugger(WORKSPACE_FOLDER, payload, ws);
 				}
 				if (data.command === "execute_command") {
-					vscode.commands.executeCommand(JSON.stringify(data.payload).replace(/['"]+/g, ""));
+					vscode.commands.executeCommand(
+						JSON.stringify(data.payload["command"]).replace(/['"]+/g, "",),
+						data.payload["args"]);
 				}
 			});
 		}
