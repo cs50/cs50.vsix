@@ -39,7 +39,11 @@
 					"icon": "resources/cs50.svg"
 				}
 			]
-		}
+		},
+		"keybindings": [
+			{ "key": "ctrl+`", "command": "workbench.action.terminal.focus"},
+			{ "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus"}
+		  ]
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
