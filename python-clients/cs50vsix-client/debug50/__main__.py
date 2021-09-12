@@ -35,6 +35,10 @@ LAUNCH_CONFIG = {
                     "description": "Enable pretty-printing for gdb",
                     "text": "-enable-pretty-printing",
                     "ignoreFailures": True
+                },
+                {
+                    "description": "Skip glibc",
+                    "text": "-interpreter-exec console \"skip -gfi **/glibc*/**/*.c\""
                 }
             ]
         },
