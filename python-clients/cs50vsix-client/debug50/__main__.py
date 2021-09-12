@@ -30,6 +30,7 @@ LAUNCH_CONFIG = {
             "externalConsole": False,
             "MIMode": "gdb",
             "MIDebuggerPath": "gdb",
+            "miDebuggerArgs": "-q",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
