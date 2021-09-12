@@ -45,6 +45,7 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 		// https://github.com/microsoft/vscode/issues/63813
 		setTimeout(() => {
 			vscode.window.activeTerminal?.sendText("kill -9 $(echo $$)");
+			vscode.commands.executeCommand("workbench.explorer.fileView.focus");
 		}, 100);
 		ws.send("terminated_debugger");
 	});
