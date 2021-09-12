@@ -15,11 +15,6 @@ interface payload {
 	"payload": Object
 }
 
-interface commandPayload {
-	"command": string,
-	"args": []
-}
-
 const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
@@ -45,6 +40,12 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 	});
 
 	vscode.debug.onDidTerminateDebugSession((event) => {
+
+		// Close terminal after debug session ended
+		// https://github.com/microsoft/vscode/issues/63813
+		setTimeout(() => {
+			vscode.window.activeTerminal?.sendText("kill -9 $(echo $$)");
+		}, 100);
 		ws.send("terminated_debugger");
 	});
 };

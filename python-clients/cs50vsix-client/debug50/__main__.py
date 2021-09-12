@@ -106,8 +106,6 @@ def get_config(config_name):
             for i in range(2, len(sys.argv)):
                 each["args"].append(sys.argv[i])
             
-            each["args"].append("&&")
-            each["args"].append("exit")
             return each
 
 
