@@ -35,11 +35,21 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 		}
 	});
 	
-	vscode.debug.onDidStartDebugSession((event) => {
+	vscode.debug.onDidStartDebugSession(() => {
 		ws.send("started_debugger");
 	});
 
-	vscode.debug.onDidTerminateDebugSession((event) => {
+	// Terminate debug session if libc-start.c is stepped over/into
+	vscode.window.onDidChangeActiveTextEditor((event) => {
+		if (event["document"]["fileName"].includes("libc-start.c")) {
+			setTimeout(() => {
+				vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+				vscode.debug.stopDebugging();
+			}, 100);
+		}
+	});
+
+	vscode.debug.onDidTerminateDebugSession(() => {
 
 		// Close terminal after debug session ended
 		// https://github.com/microsoft/vscode/issues/63813
