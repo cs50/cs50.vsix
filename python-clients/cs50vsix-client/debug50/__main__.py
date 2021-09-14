@@ -25,7 +25,7 @@ LAUNCH_CONFIG = {
             "program": "",
             "args": [],
             "stopAtEntry": False,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": False,
             "MIMode": "gdb",
