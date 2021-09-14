@@ -41,6 +41,10 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 
 	// Terminate debug session if libc-start.c is stepped over/into
 	vscode.window.onDidChangeActiveTextEditor((event) => {
+		if (event == undefined) {
+			return;
+		}
+		
 		if (event["document"]["fileName"].includes("libc-start.c")) {
 			setTimeout(() => {
 				vscode.commands.executeCommand("workbench.action.closeActiveEditor");
