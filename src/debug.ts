@@ -7,9 +7,8 @@ vscode.debug.breakpoints;
 
 function startDebugger(workspace_folder, config, ws) {
 	const breakpoints = vscode.debug.breakpoints;
-	for (const each in breakpoints) {
-		console.log(each);
-		const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
+	for (const index in breakpoints) {
+		const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[index]));
 		if (breakpoint.location.uri.path === config.path) {
 			const debugConfiguration: vscode.DebugConfiguration = config.launch_config;
 			vscode.debug.startDebugging(workspace_folder, debugConfiguration);
