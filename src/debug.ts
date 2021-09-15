@@ -1,24 +1,22 @@
 import * as vscode from 'vscode';
-import WebSocket = require('ws');
-import {customDebugConfiguration, breakpoint} from './interfaces';
+import {breakpoint} from './interfaces';
+require('ws');
 
 // Initialization
 vscode.debug.breakpoints;
 
-const startDebugger = (workspace_folder, config, ws) => {
-	let didSetBreakpoints = false;
+function startDebugger(workspace_folder, config, ws) {
 	const breakpoints = vscode.debug.breakpoints;
-	for (const each in vscode.debug.breakpoints) {
+	for (const each in breakpoints) {
+		console.log(each);
 		const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[each]));
 		if (breakpoint.location.uri.path === config.path) {
-			didSetBreakpoints = true;
-			const debugConfiguration:vscode.DebugConfiguration = config.launch_config;
+			const debugConfiguration: vscode.DebugConfiguration = config.launch_config;
 			vscode.debug.startDebugging(workspace_folder, debugConfiguration);
+			return;
 		}
 	}
-	if (!didSetBreakpoints) {
-		ws.send("no_break_points");
-	}
-};
+	ws.send("no_break_points");
+}
 
 export {startDebugger};
