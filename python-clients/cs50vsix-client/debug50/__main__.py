@@ -32,7 +32,7 @@ LAUNCH_CONFIG = {
             "MIDebuggerPath": "gdb",
             "miDebuggerArgs": "-q",
             "sourceFileMap": {
-                "/build/glibc-eX1tMB/": f"vscode-remote://{os.getenv('CODESPACE_NAME')}/opt/cs50/src/glibc-eX1tMB"
+                "/build/glibc-eX1tMB/": f"vscode-remote://{os.getenv('CODESPACE_NAME')}/opt/cs50/src/glibc-eX1tMB/"
             },
             "setupCommands": [
                 {
