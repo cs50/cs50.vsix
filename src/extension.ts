@@ -17,7 +17,6 @@ interface payload {
 }
 
 const startWebsocketServer = async (port: number, context: vscode.ExtensionContext): Promise<boolean> => {
-
 	let isInUse = await tcpPorts.check(port);
 	while(isInUse) {
 		port += 1;
@@ -72,7 +71,7 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		}, 100);
 		ws.send("terminated_debugger");
 	});
-
+	
 	return true;
 };
 
