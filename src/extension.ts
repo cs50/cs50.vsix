@@ -3,7 +3,7 @@ import WebSocket = require('ws');
 import { startDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
 
-const PORT = 60001;
+const PORT = 3889;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
 let wss: WebSocket.Server | null = null;
