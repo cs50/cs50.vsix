@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import WebSocket = require('ws');
 import { startDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
+import * as tcpPorts from 'tcp-port-used';
 
 const PORT = 3889;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -15,7 +16,15 @@ interface payload {
 	"payload": Object
 }
 
-const startWebsocketServer = async (port: number, fallbackPorts: number[]): Promise<void> => {
+const startWebsocketServer = async (port: number, context: vscode.ExtensionContext): Promise<boolean> => {
+
+	let isInUse = await tcpPorts.check(port);
+	while(isInUse) {
+		port += 1;
+		isInUse = await tcpPorts.check(port);
+	}
+	const evc = context.environmentVariableCollection;
+	evc.replace("CS50_EXTENSION_PORT", `${port}`);
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
 		ws = connection;
@@ -63,6 +72,8 @@ const startWebsocketServer = async (port: number, fallbackPorts: number[]): Prom
 		}, 100);
 		ws.send("terminated_debugger");
 	});
+
+	return true;
 };
 
 const stopWebsocketServer = async(): Promise<void> => {
@@ -74,7 +85,7 @@ const stopWebsocketServer = async(): Promise<void> => {
 export function activate(context: vscode.ExtensionContext) {
 
 	// Start custom debug service
-	startWebsocketServer(PORT, [PORT + 1]);
+	startWebsocketServer(PORT, context);
 	
 	// Load custom view
 	const provider = new CS50ViewProvider(context.extensionUri);

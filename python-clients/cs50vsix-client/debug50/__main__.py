@@ -10,7 +10,7 @@ import websockets
 from debug50.colors import red, yellow
 
 DEBUGGER_TIMEOUT = 10
-SOCKET_URI = "ws://localhost:3889"
+SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3889)}"
 
 LAUNCH_CONFIG_C = "c"
 LAUNCH_CONFIG_PYTHON = "python"
@@ -82,7 +82,7 @@ async def launch():
         failed_to_launch_debugger()
         
     except OSError as e:
-        failed_to_connect_debug_service()
+        failed_to_connect_debug_service(os.getenv("CS50_EXTENSION_PORT"))
 
 
 async def launch_debugger(name, filename):
@@ -166,8 +166,8 @@ def failed_to_launch_debugger():
     sys.exit(1)
 
 
-def failed_to_connect_debug_service():
-    message = "Failed to connect extension server."
+def failed_to_connect_debug_service(port):
+    message = f"Failed to connect extension server on {port}.\nPlease open a new terminal and try again."
     print(red(message))
 
 

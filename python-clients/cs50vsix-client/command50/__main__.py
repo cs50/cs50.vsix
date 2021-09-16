@@ -2,10 +2,11 @@
 
 import asyncio
 import json
+import os
 import sys
 import websockets
 
-SOCKET_URI = "ws://localhost:60001"
+SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3889)}"
 
 async def execute(command):
     websocket = await websockets.connect(SOCKET_URI)
