@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import {breakpoint} from './interfaces';
-require('ws');
+import ws = require('ws');
 
 // Initialization
 vscode.debug.breakpoints;
 
-function startDebugger(workspace_folder, config, ws) {
+function launchDebugger(workspace_folder, config, ws: ws) {
 	const breakpoints = vscode.debug.breakpoints;
 	for (const index in breakpoints) {
 		const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[index]));
@@ -18,4 +18,4 @@ function startDebugger(workspace_folder, config, ws) {
 	ws.send("no_break_points");
 }
 
-export {startDebugger};
+export { launchDebugger };

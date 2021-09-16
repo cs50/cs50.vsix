@@ -1,14 +1,15 @@
 import * as vscode from 'vscode';
-import WebSocket = require('ws');
-import { startDebugger } from './debug';
-import { CS50ViewProvider } from './activity';
 import * as tcpPorts from 'tcp-port-used';
+import { launchDebugger } from './debug';
+import { CS50ViewProvider } from './activity';
+import WebSocket = require('ws');
 
-const PORT = 3889;
+const DEFAULT_PORT = 3050;
+const PORT_ENV = "CS50_EXTENSION_PORT";
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
-let wss: WebSocket.Server | null = null;
 let ws: WebSocket | null = null;
+let wss: WebSocket.Server | null = null;
 
 interface payload {
 	"command": string,
@@ -22,22 +23,24 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		port += 1;
 		isInUse = await tcpPorts.check(port);
 	}
-	const evc = context.environmentVariableCollection;
-	evc.replace("CS50_EXTENSION_PORT", `${port}`);
+	context.environmentVariableCollection.replace(PORT_ENV, `${port}`);
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
 		ws = connection;
 		if (ws) {
 			ws.addEventListener('message', (event) => {
 				const data: payload = JSON.parse(event.data);
+
+				// Launch debugger
 				if (data.command === "start_debugger") {
-					const payload = data.payload;
-					startDebugger(WORKSPACE_FOLDER, payload, ws);
+					launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
 				}
+
+				// Execute commands
 				if (data.command === "execute_command") {
-					vscode.commands.executeCommand(
-						JSON.stringify(data.payload["command"]).replace(/['"]+/g, "",),
-						data.payload["args"]);
+					const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "",);
+					const args = data.payload["args"];
+					vscode.commands.executeCommand(command, args);
 				}
 			});
 		}
@@ -84,7 +87,7 @@ const stopWebsocketServer = async(): Promise<void> => {
 export function activate(context: vscode.ExtensionContext) {
 
 	// Start custom debug service
-	startWebsocketServer(PORT, context);
+	startWebsocketServer(DEFAULT_PORT, context);
 	
 	// Load custom view
 	const provider = new CS50ViewProvider(context.extensionUri);
