@@ -6,8 +6,8 @@
 	"publisher": "CS50",
 	"repository": "https://github.com/cs50/cs50vsix",
 	"engines": {
-		"vscode": "^1.34.0"
-	},
+		"vscode": "^1.59.0"
+	  },
 	"categories": [
 		"Other"
 	],
@@ -15,12 +15,6 @@
 		"*"
 	],
 	"main": "./out/extension.js",
-	"scripts": {
-		"vscode:prepublish": "npm run compile",
-		"compile": "tsc -p ./",
-		"lint": "eslint . --ext .ts,.tsx",
-		"watch": "tsc -watch -p ./"
-	},
 	"contributes": {
 		"views": {
 			"cs50": [
@@ -44,6 +38,12 @@
 			{ "key": "ctrl+`", "command": "workbench.action.terminal.focus"},
 			{ "key": "ctrl+`", "command": "workbench.action.focusActiveEditorGroup", "when": "terminalFocus"}
 		  ]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"lint": "eslint . --ext .ts,.tsx",
+		"watch": "tsc -watch -p ./"
 	},
 	"devDependencies": {
 		"@types/node": "^12.12.0",
