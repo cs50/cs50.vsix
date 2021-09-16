@@ -10,7 +10,7 @@ import websockets
 from debug50.colors import red, yellow
 
 DEBUGGER_TIMEOUT = 10
-SOCKET_URI = "ws://localhost:3889"
+SOCKET_URI = "ws://localhost:60001"
 
 LAUNCH_CONFIG_C = "c"
 LAUNCH_CONFIG_PYTHON = "python"
@@ -31,6 +31,9 @@ LAUNCH_CONFIG = {
             "MIMode": "gdb",
             "MIDebuggerPath": "gdb",
             "miDebuggerArgs": "-q",
+            "sourceFileMap": {
+                "/build/glibc-eX1tMB/": f"vscode-remote://{os.getenv('CODESPACE_NAME')}/opt/cs50/src/glibc-eX1tMB"
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
