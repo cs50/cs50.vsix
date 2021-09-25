@@ -6,15 +6,15 @@ import os
 import sys
 import websockets
 
-SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3889)}"
+SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3050)}"
 
 async def execute(command):
     websocket = await websockets.connect(SOCKET_URI)
-    
+
     args = ""
     if len(sys.argv) > 2:
         args = sys.argv[2:]
-    
+
     payload = {
         "command": "execute_command",
         "payload": {
