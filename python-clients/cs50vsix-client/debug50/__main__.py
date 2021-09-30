@@ -26,7 +26,7 @@ LAUNCH_CONFIG = {
             "program": "",
             "args": [],
             "stopAtEntry": False,
-            "cwd": "${workspaceFolder}",
+            "cwd": f"{os.getcwd()}",
             "environment": [],
             "externalConsole": False,
             "MIMode": "gdb",
@@ -65,14 +65,14 @@ async def launch():
         # Start python debugger
         if get_file_extension(sys.argv[1]) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, sys.argv[1]), timeout=DEBUGGER_TIMEOUT)
-        
+
         # Start c/cpp debugger
         else:
             source = sys.argv[1] + ".c"
             executable = sys.argv[1]
             if (verify_executable(source, executable)):
                 await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source), timeout=DEBUGGER_TIMEOUT)
-        
+
         # Monitoring interactive debugger
         await monitor()
 
@@ -81,7 +81,7 @@ async def launch():
 
     except asyncio.TimeoutError:
         failed_to_launch_debugger()
-        
+
     except OSError as e:
         failed_to_connect_debug_service(os.getenv("CS50_EXTENSION_PORT"))
 
@@ -116,7 +116,7 @@ def get_config(config_name):
 
             for i in range(2, len(sys.argv)):
                 each["args"].append(sys.argv[i])
-            
+
             return each
 
 
@@ -127,7 +127,7 @@ def get_file_extension(path):
 def verify_executable(source, executable):
     if ((not os.path.isfile(source)) or (get_file_extension(source) != ".c")):
         file_not_supported(executable)
-    
+
     if (not os.path.isfile(executable)):
         executable_not_found()
 
