@@ -14,7 +14,8 @@ async def execute(command):
     payload = {
         "command": "prompt",
         "payload": {
-            "body": sys.argv[1]
+            "title": sys.argv[1],
+            "body": sys.argv[2]
         }
     }
     await websocket.send(json.dumps(payload))
@@ -29,7 +30,7 @@ def main():
     try:
         asyncio.get_event_loop().run_until_complete(execute(sys.argv[1]))
     except:
-        print("Usage: prompt50 BODY")
+        print("Usage: prompt50 TITLE BODY")
 
 
 if __name__ == "__main__":
