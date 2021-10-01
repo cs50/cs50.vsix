@@ -11,9 +11,14 @@ setuptools.setup(
     classifiers=[
         "Programming Language :: Python :: 3.6"
     ],
-    packages=["command50", "debug50"],
+    packages=["command50", "debug50", "prompt50"],
     entry_points={
-        "console_scripts": ["command50=command50.__main__:main", "debug50=debug50.__main__:main", "rebuild50=command50.__main__:rebuild"]
+        "console_scripts": [
+            "command50=command50.__main__:main",
+            "debug50=debug50.__main__:main",
+            "rebuild50=command50.__main__:rebuild",
+            "prompt50=prompt50.__main__:main"
+        ]
     },
     install_requires=["asyncio", "websockets"]
 )

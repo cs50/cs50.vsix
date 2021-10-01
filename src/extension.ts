@@ -42,10 +42,15 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 					const args = data.payload["args"];
 					vscode.commands.executeCommand(command, args);
 				}
+
+				// Prompt a message
+				if (data.command == "prompt") {
+					vscode.window.showInformationMessage(data.payload['body'], ...["OK"]);
+				}
 			});
 		}
 	});
-	
+
 	vscode.debug.onDidStartDebugSession(() => {
 		ws.send("started_debugger");
 	});
@@ -55,7 +60,7 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		if (event == undefined) {
 			return;
 		}
-		
+
 		if (event["document"]["fileName"].includes("libc-start.c")) {
 			setTimeout(() => {
 				vscode.commands.executeCommand("workbench.action.closeActiveEditor");
@@ -74,7 +79,7 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		}, 100);
 		ws.send("terminated_debugger");
 	});
-	
+
 	return true;
 };
 
@@ -88,7 +93,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Start custom debug service
 	startWebsocketServer(DEFAULT_PORT, context);
-	
+
 	// Load custom view
 	const provider = new CS50ViewProvider(context.extensionUri);
 	context.subscriptions.push(
