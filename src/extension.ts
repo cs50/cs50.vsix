@@ -43,10 +43,12 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 					vscode.commands.executeCommand(command, args);
 				}
 
-				// Prompt a message
+				// Prompt a message then execute a command, if any
 				if (data.command == "prompt") {
 					vscode.window.showInformationMessage<vscode.MessageItem>(
-						data.payload["title"], {modal: true, detail: data.payload["body"]});
+						data.payload["title"], {modal: true, detail: data.payload["body"]}).then(() => {
+							vscode.commands.executeCommand(data.payload["action"]);
+						});
 				}
 			});
 		}
