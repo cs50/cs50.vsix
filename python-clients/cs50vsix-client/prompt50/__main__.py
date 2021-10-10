@@ -28,17 +28,21 @@ async def prompt(title, body, action):
 
 
 def parse_args(args):
-    parser = argparse.ArgumentParser(add_help=False)
+    parser = argparse.ArgumentParser()
     parser.add_argument(
-        'title'
+        "body"
     )
     parser.add_argument(
-        'body'
-    )
-    parser.add_argument(
-        'action',
+        "-t",
+        "--title",
         nargs='?',
-        const=None
+        const=""
+    )
+    parser.add_argument(
+        "-a",
+        "--action",
+        nargs='?',
+        const=""
     )
     return parser.parse_args(args)
 
