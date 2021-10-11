@@ -111,6 +111,15 @@ export function activate(context: vscode.ExtensionContext) {
 	const provider = new CS50ViewProvider(context.extensionUri);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
+
+	// Tidy UI
+	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
+	if (workbenchConfig["activityBar"]["visible"]) {
+		vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
+	}
+	if (workbenchConfig["statusBar"]["visible"]) {
+		vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
+	}
 }
 
 export function deactivate() {
