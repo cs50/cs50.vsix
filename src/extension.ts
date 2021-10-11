@@ -114,12 +114,8 @@ export function activate(context: vscode.ExtensionContext) {
 
 	// Tidy UI
 	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
-	if (workbenchConfig["activityBar"]["visible"]) {
-		vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
-	}
-	if (workbenchConfig["statusBar"]["visible"]) {
-		vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
-	}
+	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
+	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
 }
 
 export function deactivate() {
