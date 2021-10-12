@@ -6,7 +6,8 @@ import os
 import sys
 import websockets
 
-SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3050)}"
+DEFAULT_PORT = 1337
+SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 
 async def execute(command):
     websocket = await websockets.connect(SOCKET_URI)
