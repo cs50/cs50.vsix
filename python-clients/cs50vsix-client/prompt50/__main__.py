@@ -10,8 +10,13 @@ import websockets
 SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3050)}"
 
 def main():
-    args = parse_args(sys.argv[1:])
-    asyncio.get_event_loop().run_until_complete(prompt(args.title, args.body, args.action))
+    try:
+        args = parse_args(sys.argv[1:])
+        asyncio.get_event_loop().run_until_complete(prompt(args.title, args.body, args.action))
+    except OSError as e:
+        print("Failed to connect extension WebSocket server.")
+    except Exception:
+        print("prompt50 ran into error")
 
 
 async def prompt(title, body, action):
