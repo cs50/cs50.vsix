@@ -66,6 +66,9 @@ def main():
 async def launch(program, arguments):
     try:
 
+        if (not os.path.isfile(program)):
+            file_not_found(program)
+        
         # Start python debugger
         if get_file_extension(program) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
@@ -142,6 +145,12 @@ def verify_executable(source, executable):
 
 def file_not_supported(filename):
     message = f"Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?\nUnsupported File: {filename}"
+    print(yellow(message))
+    sys.exit(1)
+
+
+def file_not_found(filename):
+    message = f"Unable to locate file: {filename}\nPlease make sure the filename is correct."
     print(yellow(message))
     sys.exit(1)
 
