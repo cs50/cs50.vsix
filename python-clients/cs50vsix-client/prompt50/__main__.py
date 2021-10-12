@@ -5,9 +5,11 @@ import asyncio
 import json
 import os
 import sys
+from typing import DefaultDict
 import websockets
 
-SOCKET_URI = f"ws://localhost:{os.getenv('CS50_EXTENSION_PORT', 3050)}"
+DEFAULT_PORT = 1337
+SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 
 def main():
     try:

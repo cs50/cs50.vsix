@@ -4,8 +4,7 @@ import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
 import WebSocket = require('ws');
 
-const DEFAULT_PORT = 3050;
-const PORT_ENV = "CS50_EXTENSION_PORT";
+const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
 let ws: WebSocket | null = null;
@@ -23,7 +22,6 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		port += 1;
 		isInUse = await tcpPorts.check(port);
 	}
-	context.environmentVariableCollection.replace(PORT_ENV, `${port}`);
 	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
 		ws = connection;

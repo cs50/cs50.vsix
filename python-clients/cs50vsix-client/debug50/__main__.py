@@ -10,9 +10,8 @@ import websockets
 from debug50.colors import red, yellow
 
 # https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-sg-en-4/ch-ports.html
-DEFAULT_PORT = 3050
-PORT_ENV = "CS50_EXTENSION_PORT"
-SOCKET_URI = f"ws://localhost:{os.getenv(PORT_ENV, DEFAULT_PORT)}"
+DEFAULT_PORT = 1337
+SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 DEBUGGER_TIMEOUT = 10
 LAUNCH_CONFIG_C = "c"
 LAUNCH_CONFIG_PYTHON = "python"
