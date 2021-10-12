@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import asyncio
 import json
 import os
@@ -57,26 +58,27 @@ LAUNCH_CONFIG = {
     ]
 }
 
+def main():
+    args, extra_args = parse_args(sys.argv[1:])
+    asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
 
-async def launch():
+
+async def launch(program, arguments):
     try:
 
         # Start python debugger
-        if get_file_extension(sys.argv[1]) == ".py":
-            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, sys.argv[1]), timeout=DEBUGGER_TIMEOUT)
+        if get_file_extension(program) == ".py":
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
 
         # Start c/cpp debugger
         else:
-            source = sys.argv[1] + ".c"
-            executable = sys.argv[1]
+            source = program + ".c"
+            executable = program
             if (verify_executable(source, executable)):
-                await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source), timeout=DEBUGGER_TIMEOUT)
+                await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source, executable, arguments), timeout=DEBUGGER_TIMEOUT)
 
         # Monitoring interactive debugger
         await monitor()
-
-    except IndexError:
-        display_usage()
 
     except asyncio.TimeoutError:
         failed_to_launch_debugger()
@@ -85,11 +87,11 @@ async def launch():
         failed_to_connect_debug_service(os.getenv("CS50_EXTENSION_PORT"))
 
 
-async def launch_debugger(name, filename):
+async def launch_debugger(config_name, source, executable, arguments):
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
-        "path": os.path.abspath(filename),
-        "launch_config": get_config(name)
+        "path": os.path.abspath(source),
+        "launch_config": get_config(config_name, executable, arguments)
     }
     payload = {
         "command": "start_debugger",
@@ -108,15 +110,13 @@ async def monitor():
             return
 
 
-def get_config(config_name):
-    if len(sys.argv) > 1:
-        for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
-            each["program"] = f"{os.getcwd()}/{sys.argv[1]}"
+def get_config(config_name, program, arguments):
+    for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
+        each["program"] = f"{os.getcwd()}/{program}"
+        if arguments is not None:
+            each["args"] = arguments
 
-            for i in range(2, len(sys.argv)):
-                each["args"].append(sys.argv[i])
-
-            return each
+        return each
 
 
 def get_file_extension(path):
@@ -171,12 +171,12 @@ def failed_to_connect_debug_service(port):
     print(red(message))
 
 
-def display_usage():
-    print("Usage: debug50 PROGRAM [ARGUMENT ...]")
-
-
-def main():
-    asyncio.get_event_loop().run_until_complete(launch())
+def parse_args(args):
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "PROGRAM"
+    )
+    return parser.parse_known_args(args)
 
 
 if __name__ == "__main__":
