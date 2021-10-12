@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as tcpPorts from 'tcp-port-used';
 import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
 import WebSocket = require('ws');
@@ -16,13 +15,13 @@ interface payload {
 	"payload": Object
 }
 
-const startWebsocketServer = async (port: number, context: vscode.ExtensionContext): Promise<boolean> => {
-	let isInUse = await tcpPorts.check(port);
-	while(isInUse) {
-		port += 1;
-		isInUse = await tcpPorts.check(port);
+async function startWebsocketServer(port: number, context: vscode.ExtensionContext, temrinal: vscode.Terminal): Promise<void> {
+	try {
+		wss = new WebSocket.Server({ port });
+		temrinal.dispose(); // Dispose helper terminal once the WebSocket server is launched
+	} catch (error) {
+		console.log(error);
 	}
-	wss = new WebSocket.Server({ port });
 	wss.on('connection', (connection: any) => {
 		ws = connection;
 		if (ws) {
@@ -36,7 +35,7 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 
 				// Execute commands
 				if (data.command === "execute_command") {
-					const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "",);
+					const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "");
 					const args = data.payload["args"];
 					vscode.commands.executeCommand(command, args);
 				}
@@ -48,12 +47,12 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 					}
 					if (data.payload["title"] == null) {
 						vscode.window.showInformationMessage<vscode.MessageItem>(
-							data.payload["body"], {modal: true}).then(() => {
+							data.payload["body"], { modal: true }).then(() => {
 								vscode.commands.executeCommand(data.payload["action"]);
 							});
 					} else {
 						vscode.window.showInformationMessage<vscode.MessageItem>(
-							data.payload["title"], {modal: true, detail: data.payload["body"]}).then(() => {
+							data.payload["title"], { modal: true, detail: data.payload["body"] }).then(() => {
 								vscode.commands.executeCommand(data.payload["action"]);
 							});
 					}
@@ -90,9 +89,7 @@ const startWebsocketServer = async (port: number, context: vscode.ExtensionConte
 		}, 100);
 		ws.send("terminated_debugger");
 	});
-
-	return true;
-};
+}
 
 const stopWebsocketServer = async(): Promise<void> => {
 	ws?.close();
@@ -102,8 +99,14 @@ const stopWebsocketServer = async(): Promise<void> => {
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// Start custom debug service
-	startWebsocketServer(DEFAULT_PORT, context);
+	// Create a new terminal
+	const terminal = vscode.window.createTerminal("extension_initialization");
+	terminal.sendText(`fuser -k ${DEFAULT_PORT}/tcp`);
+
+	// Start WebSocket server, with 1 second delay
+	setTimeout(() => {
+		startWebsocketServer(DEFAULT_PORT, context, terminal);
+	}, 1000);
 
 	// Load custom view
 	const provider = new CS50ViewProvider(context.extensionUri);
