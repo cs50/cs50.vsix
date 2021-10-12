@@ -99,7 +99,18 @@ const stopWebsocketServer = async(): Promise<void> => {
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// Create a new terminal
+	// Tidy UI
+	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
+	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
+	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
+	vscode.commands.executeCommand("workbench.action.terminal.focus");
+
+	// Load custom view
+	const provider = new CS50ViewProvider(context.extensionUri);
+	context.subscriptions.push(
+		vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
+
+	// Launch helper terminal to kill process running on port 1337
 	const terminal = vscode.window.createTerminal("extension_initialization");
 	terminal.sendText(`fuser -k ${DEFAULT_PORT}/tcp`);
 
@@ -107,16 +118,6 @@ export function activate(context: vscode.ExtensionContext) {
 	setTimeout(() => {
 		startWebsocketServer(DEFAULT_PORT, context, terminal);
 	}, 1000);
-
-	// Load custom view
-	const provider = new CS50ViewProvider(context.extensionUri);
-	context.subscriptions.push(
-		vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
-
-	// Tidy UI
-	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
-	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
-	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
 }
 
 export function deactivate() {
