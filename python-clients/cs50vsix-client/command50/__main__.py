@@ -34,8 +34,10 @@ def rebuild():
 def main():
     try:
         asyncio.get_event_loop().run_until_complete(execute(sys.argv[1]))
-    except:
-        print("Usage: command50 COMMAND")
+    except OSError as e:
+        print("Failed to connect extension WebSocket server.")
+    except Exception:
+        print("command50 ran into error")
 
 
 if __name__ == "__main__":
