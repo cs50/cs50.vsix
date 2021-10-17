@@ -53,6 +53,7 @@ LAUNCH_CONFIG = {
             "request": "launch",
             "program": "",
             "args": [],
+            "cwd": f"{os.getcwd()}",
             "console": "integratedTerminal"
         }
     ]
