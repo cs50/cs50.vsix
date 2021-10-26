@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { exec } from 'child_process';
 import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
 import WebSocket = require('ws');
@@ -15,10 +16,9 @@ interface payload {
 	"payload": Object
 }
 
-async function startWebsocketServer(port: number, context: vscode.ExtensionContext, temrinal: vscode.Terminal): Promise<void> {
+async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise<void> {
 	try {
 		wss = new WebSocket.Server({ port });
-		temrinal.dispose(); // Dispose helper terminal once the WebSocket server is launched
 	} catch (error) {
 		console.log(error);
 	}
@@ -99,25 +99,21 @@ const stopWebsocketServer = async(): Promise<void> => {
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// Tidy UI
-	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
-	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
-	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
-	vscode.commands.executeCommand("workbench.action.terminal.focus");
+	// Kill process running on port 1337 and start WebSocket server
+	exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {"env": process.env}, (error, stdout, stderr) => {
+		startWebsocketServer(DEFAULT_PORT, context);
+	});
 
 	// Load custom view
 	const provider = new CS50ViewProvider(context.extensionUri);
 	context.subscriptions.push(
 		vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
-
-	// Launch helper terminal to kill process running on port 1337
-	const terminal = vscode.window.createTerminal("extension_initialization");
-	terminal.sendText(`fuser -k ${DEFAULT_PORT}/tcp`);
-
-	// Start WebSocket server, with 1 second delay
-	setTimeout(() => {
-		startWebsocketServer(DEFAULT_PORT, context, terminal);
-	}, 1000);
+	
+	// Tidy UI
+	const workbenchConfig = vscode.workspace.getConfiguration("workbench");
+	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
+	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
+	if (vscode.window.terminals.length == 0) {vscode.commands.executeCommand("workbench.action.terminal.focus");}
 }
 
 export function deactivate() {
