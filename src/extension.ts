@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
 import WebSocket = require('ws');
+const axios = require('axios').default;
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -114,6 +115,26 @@ export function activate(context: vscode.ExtensionContext) {
 	if (!workbenchConfig["activityBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");}
 	if (workbenchConfig["statusBar"]["visible"]) {vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");}
 	vscode.commands.executeCommand("workbench.action.terminal.focus");
+
+	// Check for updates
+	exec(`cat /etc/issue`, (error, stdout, stderr) => {
+		const issue = stdout.trim();
+		const url = 'https://api.github.com/repos/cs50/codespace/commits/main';
+		axios.get(url).then((response) => {
+			const latest = response.data['sha'].trim();
+			if (issue != latest) {
+				const message = `New update available for your CS50 Codespaces.`;
+				vscode.window.showInformationMessage(
+					message, ...['Update Now', 'Remind Me Later']).then((selection) => {
+						if (selection == 'Update Now') {
+							exec('update50 -f');
+						}
+					});
+			}
+		}).catch((error) => {
+			console.log(error);
+		});
+	});
 }
 
 export function deactivate() {
