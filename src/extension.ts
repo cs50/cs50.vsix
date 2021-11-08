@@ -123,7 +123,7 @@ export function activate(context: vscode.ExtensionContext) {
 		axios.get(url).then((response) => {
 			const latest = response.data['sha'].trim();
 			if (issue != latest) {
-				const message = `New update available for your CS50 Codespaces.`;
+				const message = `Updates Available`;
 				vscode.window.showInformationMessage(
 					message, ...['Update Now', 'Remind Me Later']).then((selection) => {
 						if (selection == 'Update Now') {
