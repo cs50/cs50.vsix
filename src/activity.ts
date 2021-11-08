@@ -1,48 +1,48 @@
 import * as vscode from 'vscode';
 
 class CS50ViewProvider implements vscode.WebviewViewProvider {
-	public static readonly viewType = 'cs50.activityView';
-	private _view?: vscode.WebviewView;
+    public static readonly viewType = 'cs50.activityView';
+    private _view? : vscode.WebviewView;
 
-	constructor(
-		private readonly _extensionUri: vscode.Uri,
-	) {}
+    constructor(
+        private readonly _extensionUri: vscode.Uri,
+    ) {}
 
-	public resolveWebviewView(
-		panel: vscode.WebviewView,
-		_context: vscode.WebviewViewResolveContext,
-		_token: vscode.CancellationToken,
-	) {
-		this._view = panel;
-		panel.webview.options = {
-			enableScripts: true,
-			localResourceRoots: [this._extensionUri]
-		};
-		panel.webview.html = this._getHtmlForWebview(panel.webview);
-		panel.webview.onDidReceiveMessage(
-			message => {
-				switch (message.command) {
-					case "rebuild":
-						vscode.commands.executeCommand("github.codespaces.rebuildEnvironment");
-						return;
-					case "update":
-						if (vscode.window.activeTerminal == undefined) {
-							vscode.window.createTerminal();
-							vscode.commands.executeCommand("workbench.action.terminal.toggleTerminal");
-							setTimeout(() => {
-								vscode.window.activeTerminal?.sendText("update50");
-							}, 1000);
-							return;
-						}
-						vscode.window.activeTerminal?.sendText("update50");
-						return;
-				}
-			}
-		);
-	}
+    public resolveWebviewView(
+        panel: vscode.WebviewView,
+        _context: vscode.WebviewViewResolveContext,
+        _token: vscode.CancellationToken,
+    ) {
+        this._view = panel;
+        panel.webview.options = {
+            enableScripts: true,
+            localResourceRoots: [this._extensionUri]
+        };
+        panel.webview.html = this._getHtmlForWebview(panel.webview);
+        panel.webview.onDidReceiveMessage(
+            message => {
+                switch (message.command) {
+                    case "rebuild":
+                        vscode.commands.executeCommand("github.codespaces.rebuildEnvironment");
+                        return;
+                    case "update":
+                        if (vscode.window.activeTerminal == undefined) {
+                            vscode.window.createTerminal();
+                            vscode.commands.executeCommand("workbench.action.terminal.toggleTerminal");
+                            setTimeout(() => {
+                                vscode.window.activeTerminal?.sendText("update50");
+                            }, 1000);
+                            return;
+                        }
+                        vscode.window.activeTerminal?.sendText("update50");
+                        return;
+                }
+            }
+        );
+    }
 
-	private _getHtmlForWebview(panel: vscode.Webview) {
-		return `
+    private _getHtmlForWebview(panel: vscode.Webview) {
+        return `
 			<!DOCTYPE html>
 			<html lang="en">
 				<head>
@@ -74,7 +74,7 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 			</script>
 			</html>
 		`;
-	}
+    }
 }
 
 export { CS50ViewProvider };
