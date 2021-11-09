@@ -16,7 +16,7 @@ def main():
         args = parse_args(sys.argv[1:])
         asyncio.get_event_loop().run_until_complete(prompt(args.title, args.body, args.action))
     except OSError as e:
-        print("Failed to connect extension WebSocket server.")
+        print(f"Failed to connect extension server on port {DEFAULT_PORT}.\nPlease refresh the page and try again.")
     except Exception:
         print("prompt50 ran into error")
 

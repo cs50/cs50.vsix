@@ -177,7 +177,7 @@ def failed_to_launch_debugger():
 
 
 def failed_to_connect_debug_service(port):
-    message = f"Failed to connect extension server on {port}.\nPlease open a new terminal and try again."
+    message = f"Failed to connect extension server on port {port}.\nPlease refresh the page and try again."
     print(red(message))
 
 
