@@ -140,8 +140,8 @@ export function activate(context: vscode.ExtensionContext) {
                 const message = `Updates Available`;
                 vscode.window.showInformationMessage(
                     message, ...['Update Now', 'Remind Me Later']).then((selection) => {
-                    if (selection == 'Update Now') {
-                        exec('update50 -f');
+                    if (selection === 'Update Now') {
+                        exec('update50 --force');
                     }
                 });
             }
