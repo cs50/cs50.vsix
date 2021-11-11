@@ -12,7 +12,8 @@ from debug50.colors import red, yellow
 
 # https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-sg-en-4/ch-ports.html
 DEFAULT_PORT = 1337
-SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
+PORT = os.environ.get("CS50_WEBSOCKET_PORT", DEFAULT_PORT)
+SOCKET_URI = f"ws://localhost:{PORT}"
 DEBUGGER_TIMEOUT = 10
 LAUNCH_CONFIG_C = "c"
 LAUNCH_CONFIG_PYTHON = "python"
@@ -88,7 +89,7 @@ async def launch(program, arguments):
         failed_to_launch_debugger()
 
     except OSError as e:
-        failed_to_connect_debug_service(os.getenv("CS50_EXTENSION_PORT"))
+        failed_to_connect_debug_service(os.getenv("CS50_WEBSOCKET_PORT"))
 
 
 async def launch_debugger(config_name, source, executable, arguments):

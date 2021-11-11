@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { exec } from 'child_process';
 import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
+import * as tcpPorts from 'tcp-port-used';
 import WebSocket = require('ws');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -18,86 +19,95 @@ interface payload {
     "payload": Object
 }
 
-async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
+async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < number > {
     try {
-        wss = new WebSocket.Server({
-            port
+        let isInUse = await tcpPorts.check(port);
+        while(isInUse) {
+            port += 1;
+            isInUse = await tcpPorts.check(port);
+        }
+        wss = new WebSocket.Server({ port });
+        const evc = context.environmentVariableCollection;
+        evc.replace("CS50_WEBSOCKET_PORT", `${port}`);
+        wss.on('connection', (connection: any) => {
+            ws = connection;
+            if (ws) {
+                ws.addEventListener('message', (event) => {
+                    const data: payload = JSON.parse(event.data);
+    
+                    // Launch debugger
+                    if (data.command === "start_debugger") {
+                        launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
+                    }
+    
+                    // Execute commands
+                    if (data.command === "execute_command") {
+                        const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "");
+                        const args = data.payload["args"];
+                        vscode.commands.executeCommand(command, args);
+                    }
+    
+                    // Prompt a message then execute a command, if any
+                    if (data.command == "prompt") {
+                        if (data.payload["action"] == null) {
+                            data.payload["action"] = "";
+                        }
+                        if (data.payload["title"] == null) {
+                            vscode.window.showInformationMessage < vscode.MessageItem > (
+                                data.payload["body"], {
+                                    modal: true
+                                }).then(() => {
+                                vscode.commands.executeCommand(data.payload["action"]);
+                            });
+                        } else {
+                            vscode.window.showInformationMessage < vscode.MessageItem > (
+                                data.payload["title"], {
+                                    modal: true,
+                                    detail: data.payload["body"]
+                                }).then(() => {
+                                vscode.commands.executeCommand(data.payload["action"]);
+                            });
+                        }
+                    }
+                });
+            }
         });
-    } catch (error) {
-        console.log(error);
-    }
-    wss.on('connection', (connection: any) => {
-        ws = connection;
-        if (ws) {
-            ws.addEventListener('message', (event) => {
-                const data: payload = JSON.parse(event.data);
-
-                // Launch debugger
-                if (data.command === "start_debugger") {
-                    launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
-                }
-
-                // Execute commands
-                if (data.command === "execute_command") {
-                    const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "");
-                    const args = data.payload["args"];
-                    vscode.commands.executeCommand(command, args);
-                }
-
-                // Prompt a message then execute a command, if any
-                if (data.command == "prompt") {
-                    if (data.payload["action"] == null) {
-                        data.payload["action"] = "";
-                    }
-                    if (data.payload["title"] == null) {
-                        vscode.window.showInformationMessage < vscode.MessageItem > (
-                            data.payload["body"], {
-                                modal: true
-                            }).then(() => {
-                            vscode.commands.executeCommand(data.payload["action"]);
-                        });
-                    } else {
-                        vscode.window.showInformationMessage < vscode.MessageItem > (
-                            data.payload["title"], {
-                                modal: true,
-                                detail: data.payload["body"]
-                            }).then(() => {
-                            vscode.commands.executeCommand(data.payload["action"]);
-                        });
-                    }
-                }
-            });
-        }
-    });
-
-    vscode.debug.onDidStartDebugSession(() => {
-        ws.send("started_debugger");
-    });
-
-    // Terminate debug session if libc-start.c is stepped over/into
-    vscode.window.onDidChangeActiveTextEditor((event) => {
-        if (event == undefined) {
-            return;
-        }
-
-        if (event["document"]["fileName"].includes("libc-start.c")) {
+        vscode.debug.onDidStartDebugSession(() => {
+            ws.send("started_debugger");
+        });
+    
+        // Terminate debug session if libc-start.c is stepped over/into
+        vscode.window.onDidChangeActiveTextEditor((event) => {
+            if (event == undefined) {
+                return;
+            }
+    
+            if (event["document"]["fileName"].includes("libc-start.c")) {
+                setTimeout(() => {
+                    vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+                    vscode.debug.stopDebugging();
+                }, 100);
+            }
+        });
+    
+        vscode.debug.onDidTerminateDebugSession(() => {
+    
+            // Close terminal after debug session ended
+            // https://github.com/microsoft/vscode/issues/63813
             setTimeout(() => {
-                vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-                vscode.debug.stopDebugging();
+                vscode.window.activeTerminal ?.sendText("kill -9 $(echo $$)");
+                vscode.commands.executeCommand("workbench.explorer.fileView.focus");
             }, 100);
-        }
-    });
+            ws.send("terminated_debugger");
+        });
 
-    vscode.debug.onDidTerminateDebugSession(() => {
-
-        // Close terminal after debug session ended
-        // https://github.com/microsoft/vscode/issues/63813
-        setTimeout(() => {
-            vscode.window.activeTerminal ?.sendText("kill -9 $(echo $$)");
-            vscode.commands.executeCommand("workbench.explorer.fileView.focus");
-        }, 100);
-        ws.send("terminated_debugger");
-    });
+        return port;
+    } catch (error) {
+        console.log("Errored launching CS50 extension WebSocket server");
+        console.log(error);
+        vscode.window.showInformationMessage(`Failed to start WebSocket server on port ${port}.\nPlease close all Codespaces tabs and try again.`);
+        
+    }
 }
 
 const stopWebsocketServer = async (): Promise < void > => {
@@ -107,46 +117,56 @@ const stopWebsocketServer = async (): Promise < void > => {
 
 
 export function activate(context: vscode.ExtensionContext) {
+    
+    startWebsocketServer(DEFAULT_PORT, context).then((active_port) => {
 
-    // Kill process running on port 1337 and start WebSocket server
-    exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
-        "env": process.env
-    }, (error, stdout, stderr) => {
-        startWebsocketServer(DEFAULT_PORT, context);
-    });
+        // Load custom view
+        const provider = new CS50ViewProvider(context.extensionUri);
+        context.subscriptions.push(
+            vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
 
-    // Load custom view
-    const provider = new CS50ViewProvider(context.extensionUri);
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
+        // Tidy UI
+        const workbenchConfig = vscode.workspace.getConfiguration("workbench");
+        if (!workbenchConfig["activityBar"]["visible"]) {
+            vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
+        }
+        if (workbenchConfig["statusBar"]["visible"]) {
+            vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
+        }
+        if (active_port != DEFAULT_PORT) {
 
-    // Tidy UI
-    const workbenchConfig = vscode.workspace.getConfiguration("workbench");
-    if (!workbenchConfig["activityBar"]["visible"]) {
-        vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
-    }
-    if (workbenchConfig["statusBar"]["visible"]) {
-        vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
-    }
-    vscode.commands.executeCommand("workbench.action.terminal.focus");
-
-    // Check for updates
-    exec(`cat /etc/issue`, (error, stdout, stderr) => {
-        const issue = stdout.trim();
-        const url = 'https://api.github.com/repos/cs50/codespace/commits/main';
-        axios.get(url).then((response) => {
-            const latest = response.data['sha'].trim();
-            if (issue != latest) {
-                const message = `Updates Available`;
-                vscode.window.showInformationMessage(
-                    message, ...['Update Now', 'Remind Me Later']).then((selection) => {
-                    if (selection === 'Update Now') {
-                        exec('update50 --force');
-                    }
-                });
+            // If WebSocket is not running on default port,
+            // close all terminals and launch a new one to ensure
+            // environment variables are up-to-date
+            for (const each in vscode.window.terminals) {
+                vscode.window.terminals[each].dispose();
             }
-        }).catch((error) => {
-            console.log(error);
+            vscode.commands.executeCommand("workbench.action.terminal.newInActiveWorkspace");
+        } else {
+
+            // If WebSocket server is running on default port,
+            // simply focus it
+            vscode.commands.executeCommand("workbench.action.terminal.focus");
+        }
+
+        // Check for updates
+        exec(`cat /etc/issue`, (error, stdout, stderr) => {
+            const issue = stdout.trim();
+            const url = 'https://api.github.com/repos/cs50/codespace/commits/main';
+            axios.get(url).then((response) => {
+                const latest = response.data['sha'].trim();
+                if (issue != latest) {
+                    const message = `Updates Available`;
+                    vscode.window.showInformationMessage(
+                        message, ...['Update Now', 'Remind Me Later']).then((selection) => {
+                        if (selection === 'Update Now') {
+                            exec('update50 --force');
+                        }
+                    });
+                }
+            }).catch((error) => {
+                console.log(error);
+            });
         });
     });
 }

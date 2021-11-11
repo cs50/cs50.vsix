@@ -9,14 +9,15 @@ from typing import DefaultDict
 import websockets
 
 DEFAULT_PORT = 1337
-SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
+PORT = os.environ.get("CS50_WEBSOCKET_PORT", DEFAULT_PORT)
+SOCKET_URI = f"ws://localhost:{PORT}"
 
 def main():
     try:
         args = parse_args(sys.argv[1:])
         asyncio.get_event_loop().run_until_complete(prompt(args.title, args.body, args.action))
     except OSError as e:
-        print(f"Failed to connect extension server on port {DEFAULT_PORT}.\nPlease refresh the page and try again.")
+        print(f"Failed to connect extension server on port {PORT}.\nPlease refresh the page and try again.")
     except Exception:
         print("prompt50 ran into error")
 
