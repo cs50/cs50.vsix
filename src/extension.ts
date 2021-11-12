@@ -1,11 +1,11 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
-import { launchDebugger } from './debug';
 import { CS50ViewProvider } from './activity';
+import { launchDebugger } from './debug';
+import { checkForUpdates } from './updates';
 import WebSocket = require('ws');
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const axios = require('axios').default;
+
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
@@ -131,24 +131,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand("workbench.action.terminal.focus");
 
     // Check for updates
-    exec(`cat /etc/issue`, (error, stdout, stderr) => {
-        const issue = stdout.trim();
-        const url = 'https://api.github.com/repos/cs50/codespace/commits/main';
-        axios.get(url).then((response) => {
-            const latest = response.data['sha'].trim();
-            if (issue != latest) {
-                const message = `Updates Available`;
-                vscode.window.showInformationMessage(
-                    message, ...['Update Now', 'Remind Me Later']).then((selection) => {
-                    if (selection === 'Update Now') {
-                        exec('update50 --force');
-                    }
-                });
-            }
-        }).catch((error) => {
-            console.log(error);
-        });
-    });
+    checkForUpdates();
 }
 
 export function deactivate() {
