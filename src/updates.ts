@@ -5,7 +5,7 @@ import { exec } from "child_process";
 const axios = require('axios').default;
 
 function checkForUpdates() {
-    exec(`cat /etc/issue`, (error, stdout, stderr) => {
+    exec(`tail -1 /etc/issue`, (error, stdout, stderr) => {
         const issue = stdout.trim();
         const url = 'https://api.github.com/repos/cs50/codespace/commits/main';
         const headers = {
