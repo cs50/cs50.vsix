@@ -1,6 +1,6 @@
 .*
-!.gitignore
 !/.github/
+!.gitignore
 out
 dist
 node_modules
