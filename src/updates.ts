@@ -23,7 +23,9 @@ function checkForUpdates() {
                 vscode.window.showInformationMessage(
                     message, ...['Update Now', 'Remind Me Later']).then((selection) => {
                     if (selection === 'Update Now') {
-                        exec('update50 --force');
+                        exec('/opt/cs50/bin/update50', (stdin, stdout, stderr) => {
+                            console.log(stderr);
+                        });
                     }
                 });
             }
