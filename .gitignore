@@ -1,5 +1,9 @@
-out
-node_modules
-.vscode/
-.vscode-test/
+.*
+!/.github/
+!/.eslintrc.js
+!/.vscodeignore
+!.gitignore
+
 *.vsix
+out
+node_modules/
