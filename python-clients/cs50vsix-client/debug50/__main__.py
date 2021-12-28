@@ -88,7 +88,7 @@ async def launch(program, arguments):
         failed_to_launch_debugger()
 
     except OSError as e:
-        failed_to_connect_debug_service(os.getenv("CS50_EXTENSION_PORT"))
+        failed_to_connect_debug_service(DEFAULT_PORT)
 
 
 async def launch_debugger(config_name, source, executable, arguments):
