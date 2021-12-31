@@ -105,10 +105,15 @@ const stopWebsocketServer = async (): Promise < void > => {
     wss?.close();
 };
 
-
 export function activate(context: vscode.ExtensionContext) {
 
     // Set CS50_GH_USER environment variable for submit50
+    if (process.env.CS50_GH_USER == undefined) {
+        console.log("Environment variable CS50_GH_USER not found, closing current terminals");
+        for (let i = 0; i < vscode.window.terminals.length; i++) {
+            vscode.window.terminals[i].dispose();
+        }
+    }
     const evc = context.environmentVariableCollection;
     evc.append("CS50_GH_USER", process.env.GITHUB_USER);
 
