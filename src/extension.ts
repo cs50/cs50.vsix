@@ -108,6 +108,10 @@ const stopWebsocketServer = async (): Promise < void > => {
 
 export function activate(context: vscode.ExtensionContext) {
 
+    // Set CS50_GH_USER environment variable for submit50
+    const evc = context.environmentVariableCollection;
+    evc.append("CS50_GH_USER", process.env.GITHUB_USER);
+
     // Kill process running on port 1337 and start WebSocket server
     exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
         "env": process.env
