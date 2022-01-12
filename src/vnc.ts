@@ -13,8 +13,7 @@ export async function startVNC() {
     // Shutdown any running x11vnc server and noVNC client
     vncShutdown(vncPort);
 
-    
-    vscode.window.showInformationMessage("A virtual screen will be available in a separate browser window.");
+    vscode.window.showInformationMessage("Starting noVNC session...");
 
     console.log("Creating virtual screen...");
     exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
@@ -47,11 +46,15 @@ export async function startVNC() {
     // Open noVNC
     let retries = 10;
     while (retries > 0) {
-        await new Promise(r => setTimeout(r, 2000));
+        await new Promise(r => setTimeout(r, 1000));
         const didStartVncServer = await tcpPorts.check(vncServerPort);
         const didStartVncClient = await tcpPorts.check(vncPort);
         if (didStartVncServer && didStartVncClient) {
-            vscode.env.openExternal(vscode.Uri.parse(vncUrl));
+            vscode.window.showInformationMessage("A virtual display will be available in a separate browser window.");
+            setTimeout(() => {
+                vscode.env.openExternal(vscode.Uri.parse(vncUrl));
+                vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+            }, 2000);
             break;
         }
         retries--;
