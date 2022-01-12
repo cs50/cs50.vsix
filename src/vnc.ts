@@ -76,6 +76,13 @@ export function shutdown() {
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
+
+    // Kill processes running on VNC server port
+    exec(`fuser -k ${VNC_SERVER_PORT}/tcp`, {
+        "env": process.env
+    }, (error, stdout, stderr) => {
+        console.log(error, stdout, stderr);
+    });
 }
 
 export function createVirtualDisplay() {
