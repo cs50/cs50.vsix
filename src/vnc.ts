@@ -43,5 +43,8 @@ export function startVNC() {
         console.log(error, stdout, stderr);
     });
 
-    vscode.env.openExternal(vscode.Uri.parse(vncUrl));
+    // Open noVNC
+    setTimeout(() => {
+        vscode.env.openExternal(vscode.Uri.parse(vncUrl));
+    }, 1000);
 }
