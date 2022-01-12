@@ -4,6 +4,7 @@ import { CS50ViewProvider } from './menu';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
 import WebSocket = require('ws');
+import { vncShutdown } from './vnc';
 
 
 const DEFAULT_PORT = 1337;
@@ -150,4 +151,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
     stopWebsocketServer();
+    vncShutdown(6081);
 }

@@ -10,12 +10,7 @@ export async function startVNC() {
     const githubPreviewLink = `https://${vncHost}`;
     const vncUrl = `${githubPreviewLink}/vnc.html?autoconnect=true&host=${vncHost}&port=443&password=${vncPassword}`;
 
-    // Kill all x11vnc and noVNC processes
-    exec(`pkill -f x11vnc && fuser -k ${vncPort}/tcp`, {
-        "env": process.env
-    }, (error, stdout, stderr) => {
-        console.log(error, stdout, stderr);
-    });
+    vncShutdown(vncPort);
     
     console.log("Creating virtual screen...");
     exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
@@ -65,4 +60,12 @@ export async function startVNC() {
             }
         }
     }
+}
+
+export function vncShutdown(vncPort) {
+    exec(`pkill -f x11vnc && fuser -k ${vncPort}/tcp`, {
+        "env": process.env
+    }, (error, stdout, stderr) => {
+        console.log(error, stdout, stderr);
+    });
 }
