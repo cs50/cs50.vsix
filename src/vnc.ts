@@ -10,8 +10,12 @@ export async function startVNC() {
     const githubPreviewLink = `https://${vncHost}`;
     const vncUrl = `${githubPreviewLink}/vnc.html?autoconnect=true&host=${vncHost}&port=443&password=${vncPassword}`;
 
+    // Shutdown any running x11vnc server and noVNC client
     vncShutdown(vncPort);
+
     
+    vscode.window.showInformationMessage("A virtual screen will be available in a separate browser window.");
+
     console.log("Creating virtual screen...");
     exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
         "env": process.env
@@ -41,9 +45,9 @@ export async function startVNC() {
     });
 
     // Open noVNC
-    let retries = 5;
+    let retries = 10;
     while (retries > 0) {
-        await new Promise(r => setTimeout(r, 1000));
+        await new Promise(r => setTimeout(r, 2000));
         const didStartVncServer = await tcpPorts.check(vncServerPort);
         const didStartVncClient = await tcpPorts.check(vncPort);
         if (didStartVncServer && didStartVncClient) {
@@ -53,16 +57,16 @@ export async function startVNC() {
         retries--;
         if (retries == 0) {
             if (!didStartVncServer) {
-                vscode.window.showInformationMessage(`Timed out before x11vnc was listening on port ${vncServerPort}`);
+                vscode.window.showInformationMessage(`Timed out before x11vnc was listening on port ${vncServerPort}. Please try again.`);
             }
             if (!didStartVncClient) {
-                vscode.window.showInformationMessage(`Timed out before noVNC was listening on port ${vncPort}`);
+                vscode.window.showInformationMessage(`Timed out before noVNC was listening on port ${vncPort}. Please try again`);
             }
         }
     }
 }
 
-export function vncShutdown(vncPort) {
+export function vncShutdown(vncPort: number) {
     exec(`pkill -f x11vnc && fuser -k ${vncPort}/tcp`, {
         "env": process.env
     }, (error, stdout, stderr) => {
