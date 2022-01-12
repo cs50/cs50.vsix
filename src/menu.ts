@@ -57,31 +57,31 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 				</head>
 				
 				<body class="bg-transparent">
-					<div class="span2">
-                        <button id="btn-gui" type="button" class="h5 btn btn-primary btn-block">GUI</button>
-						<button id="btn-update" type="button" class="h5 btn btn-success btn-block">Update Codespace</button>
-						<button id="btn-rebuild" type="button" class="h5 btn btn-danger btn-block">Rebuild Codespace</button>
+					<div class="btn-group-vertical">
+                        <button id="btn-gui" type="button" class="h5 btn btn-primary">GUI</button>
+						<button id="btn-update" type="button" class="h5 btn btn-success">Update Codespace</button>
+						<button id="btn-rebuild" type="button" class="h5 btn btn-danger">Rebuild Codespace</button>
 					</div>
 				</body>
 
 				<script>
-				const vscode = acquireVsCodeApi();
-                document.getElementById("btn-gui").onclick = function hello() {
-					vscode.postMessage({
-						command: "gui"
-					})
-				}
-				document.getElementById("btn-update").onclick = function hello() {
-					vscode.postMessage({
-						command: "update"
-					})
-				}
-				document.getElementById("btn-rebuild").onclick = function hello() {
-					vscode.postMessage({
-						command: "rebuild"
-					})
-				}
-			</script>
+                    const vscode = acquireVsCodeApi();
+                    document.getElementById("btn-gui").onclick = function hello() {
+                        vscode.postMessage({
+                            command: "gui"
+                        })
+                    }
+                    document.getElementById("btn-update").onclick = function hello() {
+                        vscode.postMessage({
+                            command: "update"
+                        })
+                    }
+                    document.getElementById("btn-rebuild").onclick = function hello() {
+                        vscode.postMessage({
+                            command: "rebuild"
+                        })
+                    }
+			    </script>
 			</html>
 		`;
     }
