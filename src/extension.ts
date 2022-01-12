@@ -4,7 +4,7 @@ import { CS50ViewProvider } from './menu';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
 import WebSocket = require('ws');
-import { vncShutdown } from './vnc';
+import * as vnc from './vnc';
 
 
 const DEFAULT_PORT = 1337;
@@ -129,6 +129,9 @@ export function activate(context: vscode.ExtensionContext) {
         startWebsocketServer(DEFAULT_PORT, context);
     });
 
+    // Create virtual display
+    vnc.createVirtualDisplay();
+
     // Load custom view
     const provider = new CS50ViewProvider(context.extensionUri);
     context.subscriptions.push(
@@ -143,7 +146,6 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
     }
     vscode.commands.executeCommand("workbench.action.terminal.focus");
-    
 
     // Check for updates
     checkForUpdates();
@@ -151,5 +153,5 @@ export function activate(context: vscode.ExtensionContext) {
 
 export function deactivate() {
     stopWebsocketServer();
-    vncShutdown(6081);
+    vnc.shutdown();
 }
