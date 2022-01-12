@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { startVNC } from './vnc';
 
 class CS50ViewProvider implements vscode.WebviewViewProvider {
     public static readonly viewType = 'cs50.activityView';
@@ -22,6 +23,9 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
         panel.webview.onDidReceiveMessage(
             message => {
                 switch (message.command) {
+                    case "gui":
+                        startVNC();
+                        return;
                     case "rebuild":
                         vscode.commands.executeCommand("github.codespaces.rebuildEnvironment");
                         return;
@@ -54,6 +58,7 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 				
 				<body class="bg-transparent">
 					<div class="span2">
+                        <button id="btn-gui" type="button" class="h5 btn btn-primary btn-block">GUI</button>
 						<button id="btn-update" type="button" class="h5 btn btn-success btn-block">Update Codespace</button>
 						<button id="btn-rebuild" type="button" class="h5 btn btn-danger btn-block">Rebuild Codespace</button>
 					</div>
@@ -61,6 +66,11 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 
 				<script>
 				const vscode = acquireVsCodeApi();
+                document.getElementById("btn-gui").onclick = function hello() {
+					vscode.postMessage({
+						command: "gui"
+					})
+				}
 				document.getElementById("btn-update").onclick = function hello() {
 					vscode.postMessage({
 						command: "update"
