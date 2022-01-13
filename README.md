@@ -5,7 +5,7 @@ A Visual Studio Code (VS Code) extension that runs a built-in graphical debugger
 ### Package and Install Extension
 ```
 npm install
-./node_modules/vsce/out/vsce package
+./node_modules/vsce/vsce package
 code --install-extension cs50-0.0.1.vsix
 ```
 
