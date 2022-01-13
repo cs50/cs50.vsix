@@ -31,7 +31,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         ws = connection;
         if (ws) {
             ws.addEventListener('message', (event) => {
-                const data: payload = JSON.parse(event.data);
+                const data: payload = JSON.parse(event.data as string);
 
                 // Launch debugger
                 if (data.command === "start_debugger") {
