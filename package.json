@@ -65,7 +65,6 @@
     "dependencies": {
         "axios": "^0.24.0",
         "tcp-port-used": "^1.0.2",
-        "vsce": "^2.6.3",
         "ws": "^8.4.0"
     }
 }
