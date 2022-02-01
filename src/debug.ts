@@ -12,6 +12,9 @@ function launchDebugger(workspace_folder, config, ws: ws) {
         if (breakpoint.location.uri.path === config.path) {
             const debugConfiguration: vscode.DebugConfiguration = config.launch_config;
             vscode.debug.startDebugging(workspace_folder, debugConfiguration);
+            setTimeout(() => {
+                vscode.commands.executeCommand("workbench.action.terminal.focus");
+            }, 10000);
             return;
         }
     }
