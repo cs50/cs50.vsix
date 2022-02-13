@@ -93,10 +93,8 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
 
         // Close terminal after debug session ended
         // https://github.com/microsoft/vscode/issues/63813
-        setTimeout(() => {
-            vscode.window.activeTerminal ?.sendText("kill -9 $(echo $$)");
-            vscode.commands.executeCommand("workbench.explorer.fileView.focus");
-        }, 100);
+        vscode.window.activeTerminal ?.dispose();
+        vscode.commands.executeCommand("workbench.explorer.fileView.focus");
         ws.send("terminated_debugger");
     });
 }
@@ -117,7 +115,7 @@ export function activate(context: vscode.ExtensionContext) {
         }
         evc.append("CS50_GH_USER", process.env.GITHUB_USER);
         setTimeout(() => {
-            vscode.commands.executeCommand("workbench.action.terminal.focus");    
+            vscode.commands.executeCommand("workbench.action.terminal.focus");
         }, 200);
     }
     evc.replace("CS50_GH_USER", process.env.GITHUB_USER);
