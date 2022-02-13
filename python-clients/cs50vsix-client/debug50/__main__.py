@@ -61,7 +61,10 @@ LAUNCH_CONFIG = {
 
 def main():
     args, extra_args = parse_args(sys.argv[1:])
-    asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
+    try:
+        asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
+    except KeyboardInterrupt:
+        asyncio.get_event_loop().run_until_complete(stop_debugger())
 
 
 async def launch(program, arguments):
@@ -69,7 +72,7 @@ async def launch(program, arguments):
 
         if (not os.path.isfile(program)):
             file_not_found(program)
-        
+
         # Start python debugger
         if get_file_extension(program) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
@@ -105,6 +108,14 @@ async def launch_debugger(config_name, source, executable, arguments):
     response = await websocket.recv()
     if response == "no_break_points":
         no_break_points()
+
+
+async def stop_debugger():
+    websocket = await websockets.connect(SOCKET_URI)
+    payload = {
+        "command": "stop_debugger"
+    }
+    await websocket.send(json.dumps(payload))
 
 
 async def monitor():

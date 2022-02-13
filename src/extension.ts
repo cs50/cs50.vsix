@@ -38,6 +38,11 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
                     launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
                 }
 
+                // Terminate debugger
+                if (data.command === "stop_debugger") {
+                    vscode.debug.stopDebugging();
+                }
+
                 // Execute commands
                 if (data.command === "execute_command") {
                     const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "");
@@ -93,7 +98,12 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
 
         // Close terminal after debug session ended
         // https://github.com/microsoft/vscode/issues/63813
-        vscode.window.activeTerminal ?.dispose();
+        for (const terminal of vscode.window.terminals) {
+            const terminal_name = terminal.name.toLowerCase()
+            if (terminal_name.includes("debug") || terminal_name.includes("cppdbg")) {
+                terminal.dispose();
+            }
+        }
         vscode.commands.executeCommand("workbench.explorer.fileView.focus");
         ws.send("terminated_debugger");
     });
