@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 
+import signal
+import sys
+
+signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(1))
+
 import argparse
 import asyncio
 import json
 import os
 import pathlib
-import sys
 import websockets
 
 from debug50.colors import red, yellow
