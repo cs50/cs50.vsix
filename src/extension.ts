@@ -143,7 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Load custom view
     const provider = new CS50ViewProvider(context.extensionUri);
     context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewType, provider));
+        vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewId, provider));
 
     // Tidy UI
     const workbenchConfig = vscode.workspace.getConfiguration("workbench");

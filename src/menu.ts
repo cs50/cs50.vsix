@@ -2,8 +2,7 @@ import * as vscode from 'vscode';
 import { startVNC } from './vnc';
 
 class CS50ViewProvider implements vscode.WebviewViewProvider {
-    public static readonly viewType = 'cs50.activityView';
-    private _view? : vscode.WebviewView;
+    public static readonly viewId = 'cs50.activityView';
 
     constructor(
         private readonly _extensionUri: vscode.Uri,
@@ -14,7 +13,6 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
         _context: vscode.WebviewViewResolveContext,
         _token: vscode.CancellationToken,
     ) {
-        this._view = panel;
         panel.webview.options = {
             enableScripts: true,
             localResourceRoots: [this._extensionUri]
@@ -55,7 +53,7 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 					<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 					<title>CS50</title>
 				</head>
-				
+
 				<body class="bg-transparent">
 					<div class="btn-group-vertical">
                         <button id="btn-gui" type="button" class="h5 btn btn-primary">GUI</button>
