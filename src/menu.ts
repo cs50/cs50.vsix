@@ -64,20 +64,14 @@ class CS50ViewProvider implements vscode.WebviewViewProvider {
 
 				<script>
                     const vscode = acquireVsCodeApi();
-                    document.getElementById("btn-gui").onclick = function hello() {
-                        vscode.postMessage({
-                            command: "gui"
-                        })
+                    document.getElementById("btn-gui").onclick = () => {
+                        vscode.postMessage({command: "gui"})
                     }
-                    document.getElementById("btn-update").onclick = function hello() {
-                        vscode.postMessage({
-                            command: "update"
-                        })
+                    document.getElementById("btn-update").onclick = () => {
+                        vscode.postMessage({command: "update"})
                     }
-                    document.getElementById("btn-rebuild").onclick = function hello() {
-                        vscode.postMessage({
-                            command: "rebuild"
-                        })
+                    document.getElementById("btn-rebuild").onclick = () => {
+                        vscode.postMessage({command: "rebuild"})
                     }
 			    </script>
 			</html>
