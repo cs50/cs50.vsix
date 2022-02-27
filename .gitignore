@@ -1,9 +1,1 @@
-.*
-!/.github/
-!/.eslintrc.js
-!/.vscodeignore
 !.gitignore
-
-*.vsix
-out
-node_modules/
