@@ -12,7 +12,10 @@ import os
 import pathlib
 import websockets
 
+from base64 import decode
+from subprocess import Popen, PIPE
 from debug50.colors import red, yellow
+
 
 # https://web.mit.edu/rhel-doc/4/RH-DOCS/rhel-sg-en-4/ch-ports.html
 DEFAULT_PORT = 1337
@@ -86,7 +89,8 @@ async def launch(program, arguments):
             source = program + ".c"
             executable = program
             if (verify_executable(source, executable)):
-                await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source, executable, arguments), timeout=DEBUGGER_TIMEOUT)
+                source_files = get_source_files(program)
+                await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_C, source, executable, arguments, source_files), timeout=DEBUGGER_TIMEOUT)
 
         # Monitoring interactive debugger
         await monitor()
@@ -96,13 +100,15 @@ async def launch(program, arguments):
 
     except OSError as e:
         failed_to_connect_debug_service(DEFAULT_PORT)
+        print(e)
 
 
-async def launch_debugger(config_name, source, executable, arguments):
+async def launch_debugger(config_name, source, executable, arguments, source_files=None):
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
-        "launch_config": get_config(config_name, executable, arguments)
+        "launch_config": get_config(config_name, executable, arguments),
+        "source_files": source_files
     }
     payload = {
         "command": "start_debugger",
@@ -203,6 +209,16 @@ def parse_args(args):
     )
     return parser.parse_known_args(args)
 
+
+def get_source_files(executable):
+    p = Popen(["-c", f"dwarfdump {executable} | grep DW_AT_decl_file"], stdout=PIPE, stderr=PIPE, shell=True)
+    stdout, _ = p.communicate()
+    source_files = set()
+    for each in stdout.decode("utf-8").splitlines():
+        each = each.strip()
+        source_files.add("/" + "/".join(each.split("/")[1:]))
+
+    return list(source_files)
 
 if __name__ == "__main__":
     main()

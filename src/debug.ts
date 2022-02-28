@@ -6,10 +6,17 @@ import ws = require('ws');
 vscode.debug.breakpoints;
 
 function launchDebugger(workspace_folder, config, ws: ws) {
+
+    // Get all breakpoints
     const breakpoints = vscode.debug.breakpoints;
+
+    let source_files;
+    config.source_files == null ? source_files = [] : source_files = config.source_files;
+
+    // Iterate each breakpoints' URI and see if it matches any URI found in the source files (c/cpp) or current python file
     for (const index in breakpoints) {
         const breakpoint: breakpoint = JSON.parse(JSON.stringify(breakpoints[index]));
-        if (breakpoint.location.uri.path === config.path) {
+        if (config.path == breakpoint.location.uri.path || source_files.includes(breakpoint.location.uri.path)) {
             const debugConfiguration: vscode.DebugConfiguration = config.launch_config;
             vscode.debug.startDebugging(workspace_folder, debugConfiguration);
             setTimeout(() => {
