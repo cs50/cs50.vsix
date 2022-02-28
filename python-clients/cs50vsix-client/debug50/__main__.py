@@ -10,10 +10,9 @@ import asyncio
 import json
 import os
 import pathlib
+import subprocess
 import websockets
 
-from base64 import decode
-from subprocess import Popen, PIPE
 from debug50.colors import red, yellow
 
 
@@ -211,14 +210,17 @@ def parse_args(args):
 
 
 def get_source_files(executable):
-    p = Popen(["-c", f"dwarfdump {executable} | grep DW_AT_decl_file"], stdout=PIPE, stderr=PIPE, shell=True)
-    stdout, _ = p.communicate()
-    source_files = set()
-    for each in stdout.decode("utf-8").splitlines():
-        each = each.strip()
-        source_files.add("/" + "/".join(each.split("/")[1:]))
+    try:
+        command = f"dwarfdump {executable} | grep DW_AT_decl_file"
+        stdout = subprocess.check_output(command, stderr=subprocess.STDOUT, shell=True)
+        source_files = set()
+        for each in stdout.decode("utf-8").splitlines():
+            source_files.add("/" + "/".join(each.strip().split("/")[1:]))
 
-    return list(source_files)
+        return list(source_files)
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+
 
 if __name__ == "__main__":
     main()
