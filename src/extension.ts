@@ -3,6 +3,7 @@ import { exec } from 'child_process';
 import { CS50ViewProvider } from './menu';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
+import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import WebSocket = require('ws');
 import * as vnc from './vnc';
 
@@ -154,6 +155,9 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
     }
     vscode.commands.executeCommand("workbench.action.terminal.focus");
+
+    // Parse GitHub preview links as localhost urls
+    openPreviewLinkAsLocalhostUrl()
 
     // Check for updates
     checkForUpdates();
