@@ -2,12 +2,12 @@ import * as vscode from 'vscode';
 import * as tcpPorts from 'tcp-port-used';
 import { exec } from 'child_process';
 
+const LOCAL_HOST = '127.0.0.1'
 const NOVNC_PORT = 6081;
 const VNC_SERVER_PORT = 5900;
 const VNC_PASSWORD = Math.random().toString(36).slice(-8);
 const VNC_HOST = `${process.env.CODESPACE_NAME}-${NOVNC_PORT}.githubpreview.dev`;
-const GH_PREVIEW_LINK = `https://${VNC_HOST}`;
-const VNC_URL = `${GH_PREVIEW_LINK}/vnc.html?autoconnect=true&host=${VNC_HOST}&port=443&password=${VNC_PASSWORD}`;
+const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true&host=${VNC_HOST}&port=443&password=${VNC_PASSWORD}`;
 
 export async function startVNC() {
     
