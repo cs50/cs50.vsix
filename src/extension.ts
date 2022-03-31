@@ -1,12 +1,12 @@
 import * as vscode from 'vscode';
+import WebSocket = require('ws');
 import { exec } from 'child_process';
+import { clean_up } from './cleanup';
 import { CS50ViewProvider } from './menu';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
-import { openPreviewLinkAsLocalhostUrl } from './link_provider';
-import WebSocket = require('ws');
 import * as vnc from './vnc';
-
+import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -158,6 +158,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Parse GitHub preview links as localhost urls
     openPreviewLinkAsLocalhostUrl()
+
+    // Perform clean-up
+    clean_up();
 
     // Check for updates
     checkForUpdates();
