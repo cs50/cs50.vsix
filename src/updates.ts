@@ -16,9 +16,9 @@ function checkForUpdates() {
             const latest = response.data['sha'].trim();
             const commit_time = new Date(response.data['commit']['committer']['date']).getTime();
             const delta = (Date.now() - commit_time) / 1000;
-            
-            // Wait 10 minutes to ensure the image is built
-            if (issue != latest && delta > 600) {
+
+            // Wait 20 minutes to ensure the image is built
+            if (issue != latest && delta > 1200) {
                 const message = `Updates Available`;
                 vscode.window.showInformationMessage(
                     message, ...['Update Now', 'Remind Me Later']).then((selection) => {
