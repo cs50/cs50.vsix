@@ -38,9 +38,6 @@ LAUNCH_CONFIG = {
             "MIMode": "gdb",
             "MIDebuggerPath": "gdb",
             "miDebuggerArgs": "-q",
-            "sourceFileMap": {
-                "/build/glibc-eX1tMB/": f"vscode-remote://{os.getenv('CODESPACE_NAME')}/opt/cs50/src/glibc-eX1tMB/"
-            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -103,6 +100,7 @@ async def launch(program, arguments):
 
 
 async def launch_debugger(config_name, source, executable, arguments, source_files=None):
+    print("Launching VS Code debugger...")
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
