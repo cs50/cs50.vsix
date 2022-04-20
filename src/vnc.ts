@@ -10,7 +10,7 @@ const VNC_HOST = `${process.env.CODESPACE_NAME}-${NOVNC_PORT}.githubpreview.dev`
 const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true&host=${VNC_HOST}&port=443&password=${VNC_PASSWORD}`;
 
 export async function startVNC() {
-    
+
     shutdown();
     vscode.window.showInformationMessage("Starting noVNC session...");
 
@@ -86,10 +86,11 @@ export function shutdown() {
 }
 
 export function createVirtualDisplay() {
-    console.log("Creating virtual screen...");
-    exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
-        "env": process.env
-    }, (error, stdout, stderr) => {
-        console.log(error, stdout, stderr);
-    });
+    try {
+        exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
+            "env": process.env
+        });
+    } catch (error) {
+        console.log(error);
+    }
 }
