@@ -83,6 +83,9 @@ async def launch(program, arguments):
         # Start c/cpp debugger
         else:
             source = program + ".c"
+            if get_file_extension(program) == ".cpp" get_file_extension(program) == ".c++":
+                source = program + get_file_extension(program)
+
             executable = program
             if (verify_executable(source, executable)):
                 source_files = get_source_files(program)
@@ -146,7 +149,13 @@ def get_file_extension(path):
 
 
 def verify_executable(source, executable):
-    if ((not os.path.isfile(source)) or (get_file_extension(source) != ".c")):
+    supported_files = [
+        ".c",
+        ".c++",
+        ".cpp",
+        ".py"
+    ]
+    if ((not os.path.isfile(source)) or (get_file_extension(source) not in supported_files)):
         file_not_supported(executable)
 
     if (not os.path.isfile(executable)):
