@@ -83,7 +83,7 @@ async def launch(program, arguments):
         # Start c/cpp debugger
         else:
             source = program + ".c"
-            if get_file_extension(program) == ".cpp" get_file_extension(program) == ".c++":
+            if get_file_extension(program) == ".cpp" or get_file_extension(program) == ".c++":
                 source = program + get_file_extension(program)
 
             executable = program
