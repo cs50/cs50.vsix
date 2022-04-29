@@ -37,7 +37,10 @@ LAUNCH_CONFIG = {
             "externalConsole": False,
             "MIMode": "gdb",
             "MIDebuggerPath": "gdb",
-            "miDebuggerArgs": "-q",
+
+            # https://github.com/microsoft/vscode-cpptools/issues/3298
+            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
+
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -65,6 +68,7 @@ LAUNCH_CONFIG = {
 def main():
     args, extra_args = parse_args(sys.argv[1:])
     try:
+        print("Launching VS Code debugger...")
         asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
     except KeyboardInterrupt:
         asyncio.get_event_loop().run_until_complete(stop_debugger())
@@ -100,7 +104,6 @@ async def launch(program, arguments):
 
 
 async def launch_debugger(config_name, source, executable, arguments, source_files=None):
-    print("Launching VS Code debugger...")
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
