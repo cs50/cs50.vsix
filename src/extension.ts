@@ -3,7 +3,7 @@ import WebSocket = require('ws');
 import { exec } from 'child_process';
 import { clean_up } from './cleanup';
 import { CS50ViewProvider } from './menu';
-import { launchDebugger } from './debug';
+import { disposeDebugTerminals, launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
@@ -97,16 +97,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
     });
 
     vscode.debug.onDidTerminateDebugSession(() => {
-
-        // Close terminal after debug session ended
-        // https://github.com/microsoft/vscode/issues/63813
-        for (const terminal of vscode.window.terminals) {
-            const terminal_name = terminal.name.toLowerCase()
-            if (terminal_name.includes("debug") || terminal_name.includes("cppdbg")) {
-                terminal.dispose();
-            }
-        }
-        vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+        disposeDebugTerminals();
         ws.send("terminated_debugger");
     });
 }
