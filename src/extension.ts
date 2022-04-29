@@ -79,6 +79,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
 
     vscode.debug.onDidStartDebugSession(() => {
         ws.send("started_debugger");
+        vscode.commands.executeCommand("workbench.view.debug");
     });
 
     // Terminate debug session if libc-start.c is stepped over/into
