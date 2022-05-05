@@ -2,11 +2,11 @@ import * as vscode from 'vscode';
 import WebSocket = require('ws');
 import { exec } from 'child_process';
 import { clean_up } from './cleanup';
-import { CS50ViewProvider } from './menu';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
+import { registerCommand } from './commands';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -118,6 +118,9 @@ const stopWebsocketServer = async (): Promise < void > => {
 
 export function activate(context: vscode.ExtensionContext) {
 
+    // Register Commands
+    registerCommand(context);
+
     // Set CS50_GH_USER environment variable for submit50
     const evc = context.environmentVariableCollection;
     if (evc.get("CS50_GH_USER") == undefined) {
@@ -141,11 +144,6 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Create virtual display
     vnc.createVirtualDisplay();
-
-    // Load custom view
-    const provider = new CS50ViewProvider(context.extensionUri);
-    context.subscriptions.push(
-        vscode.window.registerWebviewViewProvider(CS50ViewProvider.viewId, provider));
 
     // Tidy UI
     const workbenchConfig = vscode.workspace.getConfiguration("workbench");
