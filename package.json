@@ -12,28 +12,33 @@
         "Other"
     ],
     "activationEvents": [
-        "onStartupFinished"
+        "*"
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "views": {
-            "cs50": [
-                {
-                    "id": "cs50.activityView",
-                    "name": "CS50 Menu",
-                    "type": "webview"
-                }
-            ]
-        },
         "viewsContainers": {
             "activitybar": [
                 {
-                    "id": "cs50",
+                    "id": "cs50-menu",
                     "title": "CS50 Menu",
                     "icon": "resources/cs50.svg"
                 }
             ]
         },
+        "views": {
+            "cs50-menu": [
+                {
+                    "id": "cs50-menu",
+                    "name": "CS50 Menu"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "cs50-menu",
+                "contents": "[Launch GUI](command:cs50.launchGUI)\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\n"
+            }
+        ],
         "keybindings": [
             {
                 "key": "ctrl+`",
