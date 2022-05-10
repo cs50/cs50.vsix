@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import WebSocket = require('ws');
 import { exec } from 'child_process';
-import { clean_up } from './cleanup';
+import { clean_up, uninstallExtensions } from './cleanup';
 import { launchDebugger } from './debug';
 import { checkForUpdates } from './updates';
 import * as vnc from './vnc';
@@ -160,6 +160,10 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Perform clean-up
     clean_up();
+
+    // Remove deny-listed extensions
+    uninstallExtensions();
+    vscode.extensions.onDidChange(() => {uninstallExtensions();})
 
     // Check for updates
     checkForUpdates();

