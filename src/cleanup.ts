@@ -29,17 +29,15 @@ function reset_html_file_association() {
 
 function uninstallExtensions() {
     let denyList = ['GitHub.copilot', 'GitHub.copilot-nightly', 'TabNine.tabnine-vscode']
-    setTimeout(() => {
-        try {
-            for (let i = 0; i < denyList.length; i++) {
-                if (vscode.extensions.all.find(e => e.id === denyList[i])) {
-                    vscode.commands.executeCommand("workbench.extensions.uninstallExtension", denyList[i])
-                }
+    try {
+        for (let i = 0; i < denyList.length; i++) {
+            if (vscode.extensions.all.find(e => e.id === denyList[i])) {
+                vscode.commands.executeCommand("workbench.extensions.uninstallExtension", denyList[i])
             }
-        } catch (error) {
-            console.log(error);
         }
-    }, 10000);
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 export { clean_up, uninstallExtensions }
