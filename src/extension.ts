@@ -125,15 +125,15 @@ export function activate(context: vscode.ExtensionContext) {
     const evc = context.environmentVariableCollection;
     if (evc.get("CS50_GH_USER") == undefined) {
         console.log("Setting CS50_GH_USER environment variable and relaunching terminal");
-        for (let i = 0; i < vscode.window.terminals.length; i++) {
-            vscode.window.terminals[i].dispose();
-        }
         evc.append("CS50_GH_USER", process.env.GITHUB_USER);
-        setTimeout(() => {
-            vscode.commands.executeCommand("workbench.action.terminal.focus");
-        }, 200);
     }
     evc.replace("CS50_GH_USER", process.env.GITHUB_USER);
+
+    // Force create terminal with login profile
+    for (let i = 0; i < vscode.window.terminals.length; i++) {
+        vscode.window.terminals[i].dispose();
+    }
+    vscode.window.createTerminal("bash", "bash", ["--login"]).show();
 
     // Kill process running on port 1337 and start WebSocket server
     exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
@@ -153,7 +153,6 @@ export function activate(context: vscode.ExtensionContext) {
     if (workbenchConfig["statusBar"]["visible"]) {
         vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
     }
-    vscode.commands.executeCommand("workbench.action.terminal.focus");
 
     // Parse GitHub preview links as localhost urls
     openPreviewLinkAsLocalhostUrl()
