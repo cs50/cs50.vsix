@@ -86,7 +86,8 @@ async def launch(program, arguments):
 
         # Start c/cpp debugger
         else:
-            source = program + ".c"
+            # Get the source file using DW_AT_name
+            source = list(filter(lambda source_file: program in source_file, get_source_files(program)))[0]
             executable = program
             if (verify_executable(source, executable)):
                 source_files = get_source_files(program)
@@ -149,7 +150,8 @@ def get_file_extension(path):
 
 
 def verify_executable(source, executable):
-    if ((not os.path.isfile(source)) or (get_file_extension(source) != ".c")):
+    supported_source_files = [".c", ".cpp"]
+    if ((not os.path.isfile(source)) or (get_file_extension(source) not in supported_source_files)):
         file_not_supported(executable)
 
     if (not os.path.isfile(executable)):
