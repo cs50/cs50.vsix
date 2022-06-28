@@ -37,7 +37,10 @@ LAUNCH_CONFIG = {
             "externalConsole": False,
             "MIMode": "gdb",
             "MIDebuggerPath": "gdb",
-            "miDebuggerArgs": "-q",
+
+            # https://github.com/microsoft/vscode-cpptools/issues/3298
+            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
+
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",
@@ -65,6 +68,7 @@ LAUNCH_CONFIG = {
 def main():
     args, extra_args = parse_args(sys.argv[1:])
     try:
+        print("Launching VS Code debugger...")
         asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
     except KeyboardInterrupt:
         asyncio.get_event_loop().run_until_complete(stop_debugger())
@@ -82,10 +86,8 @@ async def launch(program, arguments):
 
         # Start c/cpp debugger
         else:
-            source = program + ".c"
-            if get_file_extension(program) == ".cpp" or get_file_extension(program) == ".c++":
-                source = program + get_file_extension(program)
-
+            # Get the source file using DW_AT_name
+            source = list(filter(lambda source_file: program in source_file, get_source_files(program)))[0]
             executable = program
             if (verify_executable(source, executable)):
                 source_files = get_source_files(program)
@@ -103,7 +105,6 @@ async def launch(program, arguments):
 
 
 async def launch_debugger(config_name, source, executable, arguments, source_files=None):
-    print("Launching VS Code debugger...")
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
@@ -149,13 +150,8 @@ def get_file_extension(path):
 
 
 def verify_executable(source, executable):
-    supported_files = [
-        ".c",
-        ".c++",
-        ".cpp",
-        ".py"
-    ]
-    if ((not os.path.isfile(source)) or (get_file_extension(source) not in supported_files)):
+    supported_source_files = [".c", ".cpp"]
+    if ((not os.path.isfile(source)) or (get_file_extension(source) not in supported_source_files)):
         file_not_supported(executable)
 
     if (not os.path.isfile(executable)):
