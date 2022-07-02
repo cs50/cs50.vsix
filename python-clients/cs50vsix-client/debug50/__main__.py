@@ -87,7 +87,7 @@ async def launch(program, arguments):
         # Start c/cpp debugger
         else:
             # Get the source file using DW_AT_name
-            source = list(filter(lambda source_file: program in source_file, get_source_files(program)))[0]
+            source = list(filter(lambda source_file: os.path.basename(program) in source_file, get_source_files(program)))[0]
             executable = program
             if (verify_executable(source, executable)):
                 source_files = get_source_files(program)
