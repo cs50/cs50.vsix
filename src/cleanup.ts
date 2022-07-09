@@ -1,10 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import * as vscode from 'vscode';
 
 function clean_up() {
     reset_html_file_association();
-};
+}
 
 /**
  * Remove file association for html files from jinja-html.
@@ -19,25 +18,14 @@ function reset_html_file_association() {
         // Remove comments
         file = file.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? '' : m);
 
-        let settings = JSON.parse(file);
+        const settings = JSON.parse(file);
+        // eslint-disable-next-line no-prototype-builtins
         if (settings.hasOwnProperty('files.associations')) {
             delete settings['files.associations']['*.html']
             fs.writeFileSync(workspace_settings, JSON.stringify(settings, null, 4));
         }
+    // eslint-disable-next-line no-empty
     } catch (error) {}
 }
 
-function uninstallExtensions() {
-    let denyList = ['GitHub.copilot', 'GitHub.copilot-nightly', 'TabNine.tabnine-vscode']
-    try {
-        for (let i = 0; i < denyList.length; i++) {
-            if (vscode.extensions.all.find(e => e.id === denyList[i])) {
-                vscode.commands.executeCommand("workbench.extensions.uninstallExtension", denyList[i])
-            }
-        }
-    } catch (error) {
-        console.log(error);
-    }
-}
-
-export { clean_up, uninstallExtensions }
+export { clean_up }
