@@ -88,12 +88,16 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
             return;
         }
 
-        if (event["document"]["fileName"].includes("libc-start.c")) {
-            setTimeout(() => {
-                vscode.commands.executeCommand("workbench.action.closeActiveEditor");
-                vscode.debug.stopDebugging();
-            }, 100);
-        }
+        const skipFiles = ["libc-start.c", "libc_start_call_main.h"];
+        skipFiles.find(element => {
+            if (event["document"]["fileName"].includes(element)) {
+                setTimeout(() => {
+                    vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+                    vscode.debug.stopDebugging();
+                }, 100);
+                return;
+            }
+        });
     });
 
     vscode.debug.onDidTerminateDebugSession(() => {
