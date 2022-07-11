@@ -3,7 +3,7 @@ import WebSocket = require('ws');
 import { exec } from 'child_process';
 import { clean_up } from './cleanup';
 import { launchDebugger } from './debug';
-import { checkForUpdates } from './updates';
+import { checkForUpdates, detectInsiderVersion } from './updates';
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
@@ -159,12 +159,13 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     // Parse GitHub preview links as localhost urls
-    openPreviewLinkAsLocalhostUrl()
+    openPreviewLinkAsLocalhostUrl();
 
     // Perform clean-up
     clean_up();
 
     // Check for updates
+    detectInsiderVersion();
     checkForUpdates();
 }
 
