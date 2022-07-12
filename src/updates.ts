@@ -38,7 +38,7 @@ function checkForUpdates() {
 function detectInsiderVersion() {
     try {
         if (process.env["VSCODE_CWD"].includes("insider")) {
-            const message = 'You seem to be running the Insiders version of VS Code, which might not be compatible with some of CS50\'s own features. Best to switch back to the Stable version of VS Code, as "Switch to Stable Version..." under VS Code\'s gear icon.';
+            const message = 'You seem to be running the Insiders version of VS Code, which might not be compatible with some of CS50\'s own features. Best to switch back to the Stable version of VS Code, as via "Switch to Stable Version..." under VS Code\'s gear icon.';
             vscode.window.showWarningMessage(message);
         }
     } catch (error) {
