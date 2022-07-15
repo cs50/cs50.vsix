@@ -2,6 +2,7 @@
     "name": "cs50",
     "displayName": "CS50",
     "description": "A CS50 Visual Studio Code extension",
+    "icon": "images/cs50.png",
     "version": "0.0.1",
     "publisher": "CS50",
     "repository": "https://github.com/cs50/cs50.vsix",
