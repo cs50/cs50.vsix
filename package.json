@@ -17,29 +17,22 @@
     ],
     "main": "./out/extension.js",
     "contributes": {
-        "viewsContainers": {
-            "activitybar": [
-                {
-                    "id": "cs50-menu",
-                    "title": "CS50 Menu",
-                    "icon": "resources/cs50.svg"
-                }
-            ]
-        },
-        "views": {
-            "cs50-menu": [
-                {
-                    "id": "cs50-menu",
-                    "name": "CS50 Menu"
-                }
-            ]
-        },
-        "viewsWelcome": [
+        "commands": [
             {
-                "view": "cs50-menu",
-                "contents": "[Launch GUI](command:cs50.launchGUI)\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\n"
+                "command": "cs50.returnHome",
+                "title": "Go to Home Folder",
+                "icon": "$(home)"
             }
         ],
+        "menus": {
+            "view/title": [
+              {
+                "command": "cs50.returnHome",
+                "group": "navigation",
+                "when": "view.workbench.explorer.fileView.visible"
+              }
+            ]
+        },
         "keybindings": [
             {
                 "key": "ctrl+`",
@@ -49,6 +42,29 @@
                 "key": "ctrl+`",
                 "command": "workbench.action.focusActiveEditorGroup",
                 "when": "terminalFocus"
+            }
+        ],
+        "views": {
+            "cs50-menu": [
+                {
+                    "id": "cs50-menu",
+                    "name": "CS50 Menu"
+                }
+            ]
+        },
+        "viewsContainers": {
+            "activitybar": [
+                {
+                    "id": "cs50-menu",
+                    "title": "CS50 Menu",
+                    "icon": "resources/cs50.svg"
+                }
+            ]
+        },
+        "viewsWelcome": [
+            {
+                "view": "cs50-menu",
+                "contents": "[Launch GUI](command:cs50.launchGUI)\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)"
             }
         ]
     },
