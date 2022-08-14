@@ -1,8 +1,23 @@
 import * as fs from 'fs';
 import * as path from 'path';
+import * as vscode from 'vscode';
 
 function clean_up() {
+    activateGitDoc();
     reset_html_file_association();
+}
+
+/**
+ * Forcefully activate GitDoc.
+ */
+function activateGitDoc() {
+    setTimeout(() => {
+        try {
+            vscode.commands.executeCommand("gitdoc.enable");
+        } catch (e) {
+            console.log(e);
+        }
+    }, 120000);
 }
 
 /**
@@ -28,4 +43,4 @@ function reset_html_file_association() {
     } catch (error) {}
 }
 
-export { clean_up }
+export { clean_up };
