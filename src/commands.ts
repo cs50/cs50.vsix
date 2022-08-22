@@ -22,6 +22,17 @@ export function registerCommand(context: vscode.ExtensionContext) {
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
+    // Command: Reset Terminal
+    command = "cs50.resetTerminal";
+    commandHandler = async () => {
+        // Force create terminal with login profile
+        for (let i = 0; i < vscode.window.terminals.length; i++) {
+            vscode.window.terminals[i].dispose();
+        }
+        vscode.window.createTerminal("bash", "bash", ["--login"]).show();
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
     // Command: Return to workspace home
     command = "cs50.returnHome";
     commandHandler = async () => {

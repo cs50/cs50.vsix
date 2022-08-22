@@ -133,12 +133,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
     evc.replace("CS50_GH_USER", process.env.GITHUB_USER);
 
-    // Force create terminal with login profile
-    for (let i = 0; i < vscode.window.terminals.length; i++) {
-        vscode.window.terminals[i].dispose();
-    }
-    vscode.window.createTerminal("bash", "bash", ["--login"]).show();
-
     // Kill process running on port 1337 and start WebSocket server
     exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
         "env": process.env
