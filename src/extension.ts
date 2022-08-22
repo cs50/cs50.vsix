@@ -105,7 +105,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         // Close terminal after debug session ended
         // https://github.com/microsoft/vscode/issues/63813
         for (const terminal of vscode.window.terminals) {
-            const terminal_name = terminal.name.toLowerCase()
+            const terminal_name = terminal.name.toLowerCase();
             if (terminal_name.includes("debug") || terminal_name.includes("cppdbg")) {
                 terminal.dispose();
             }
@@ -151,6 +151,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (workbenchConfig["statusBar"]["visible"]) {
         vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
     }
+    vscode.commands.executeCommand("workbench.action.terminal.focus");
 
     // Parse GitHub preview links as localhost urls
     openPreviewLinkAsLocalhostUrl();
