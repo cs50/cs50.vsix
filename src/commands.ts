@@ -25,6 +25,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
     // Command: Cleanup Workspace Repository
     command = "cs50.cleanupRepository";
     commandHandler = () => {
+        vscode.commands.executeCommand("workbench.action.terminal.focus");
         vscode.window.activeTerminal.sendText("cd $CODESPACE_VSCODE_FOLDER && clean50");
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
