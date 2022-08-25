@@ -22,6 +22,13 @@ export function registerCommand(context: vscode.ExtensionContext) {
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
+    // Command: Cleanup Workspace Repository
+    command = "cs50.cleanupRepository";
+    commandHandler = () => {
+        vscode.window.activeTerminal.sendText("cd $CODESPACE_VSCODE_FOLDER && clean50");
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
     // Command: Reset Terminal
     command = "cs50.resetTerminal";
     commandHandler = async () => {
