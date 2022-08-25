@@ -12,7 +12,7 @@ import termcolor
 
 BFG_VERSION = "1.14.0"
 BFG = f"bfg-{BFG_VERSION}.jar"
-INSTALL_DIR = "/tmp"
+INSTALL_DIR = "/opt/share"
 
 def main():
     args = parse_args(sys.argv[1:])
@@ -33,7 +33,7 @@ def main():
 
         # Check to see if BFG repo cleaner is already installed
         if not os.path.isfile(f"{INSTALL_DIR}/{BFG}"):
-            print(yellow(f"Downloading BFG repo cleaner to {INSTALL_DIR} ..."))
+            print(yellow(f"BFG not found, downloading BFG to {INSTALL_DIR} ..."))
             subprocess.run(f"wget https://repo1.maven.org/maven2/com/madgag/bfg/{BFG_VERSION}/{BFG} -P {INSTALL_DIR}/",
                 check=True, shell=True, stdout=stdout, stderr=stderr
             )
