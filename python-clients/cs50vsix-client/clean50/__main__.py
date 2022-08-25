@@ -38,12 +38,11 @@ def main():
                 check=True, shell=True, stdout=stdout, stderr=stderr
             )
 
-        print(yellow("Cleaning up unnecessary files and optimize the local repository..."))
+        print(yellow("Cleaning up unnecessary files and optimizing local repository..."))
         subprocess.run("git gc", check=True, shell=True, stdout=stdout, stderr=stderr)
 
-        print(yellow("Running BFG repo cleaner to remove large files from the commit history..."))
+        print(yellow("Running BFG repo cleaner to remove large files from commit history..."))
         commands = ";".join([
-            # Run BFG repo cleaner to remove large files from the commit history
             f"java -jar {INSTALL_DIR}/{BFG} --no-blob-protection --strip-blobs-bigger-than 100M",
             "git reflog expire --expire=now --all",
             "git gc --prune=now --aggressive"
