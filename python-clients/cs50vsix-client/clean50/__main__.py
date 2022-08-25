@@ -21,6 +21,10 @@ def main():
     stdout = None if bool(verbose) else subprocess.DEVNULL
     stderr = None if bool(verbose) else subprocess.STDOUT
 
+    # Abort operation immediately if current working directory is not a valid git repository
+    if not os.path.isfile("./.git/index"):
+        sys.exit(red("Not a valid git repository, operation aborted."))
+
     confirmation = input(red("WARNING!! Please make sure you have a backup of your important files and proceed with caution.\nContinue? (y/n): "))
     if not confirmation.strip().lower() in ("yes", "y"):
         sys.exit(red("Operation aborted."))
