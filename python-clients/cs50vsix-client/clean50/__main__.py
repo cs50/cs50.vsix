@@ -21,6 +21,10 @@ def main():
     stdout = None if bool(verbose) else subprocess.DEVNULL
     stderr = None if bool(verbose) else subprocess.STDOUT
 
+    confirmation = input(red("WARNING!! Please make sure you have a backup of your important files and proceed with caution.\nContinue? (y/n): "))
+    if not confirmation.strip().lower() in ("yes", "y"):
+        sys.exit(red("Operation aborted."))
+
     try:
 
         # Check to see if BFG repo cleaner is already installed
