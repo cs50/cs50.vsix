@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as tcpPorts from 'tcp-port-used';
 import { exec } from 'child_process';
 
-const LOCAL_HOST = '127.0.0.1'
+const LOCAL_HOST = '127.0.0.1';
 const NOVNC_PORT = 6081;
 const VNC_SERVER_PORT = 5900;
 const VNC_PASSWORD = Math.random().toString(36).slice(-8);
@@ -12,25 +12,25 @@ const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true&ho
 export async function startVNC() {
 
     shutdown();
-    vscode.window.showInformationMessage("Starting noVNC session...");
+    vscode.window.showInformationMessage('Starting noVNC session...');
 
-    console.log("Starting VNC server...");
+    console.log('Starting VNC server...');
     exec(`x11vnc -cursor arrow -display $DISPLAY -forever -loop -noxfixes -noxrecord -noxdamage -passwd ${VNC_PASSWORD} -xkb -shared &>> /tmp/x11vnc.log &`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
 
-    console.log("Starting openbox session...");
+    console.log('Starting openbox session...');
     exec(`openbox-session &>>/tmp/noVNC.log &`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
 
-    console.log("Starting noVNC client...");
+    console.log('Starting noVNC client...');
     exec(`/opt/noVNC/utils/novnc_proxy --vnc localhost:${VNC_SERVER_PORT} --listen localhost:${NOVNC_PORT}`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
@@ -42,10 +42,10 @@ export async function startVNC() {
         const didStartVncServer = await tcpPorts.check(VNC_SERVER_PORT);
         const didStartVncClient = await tcpPorts.check(NOVNC_PORT);
         if (didStartVncServer && didStartVncClient) {
-            vscode.window.showInformationMessage("A virtual display will be available in a separate browser window.");
+            vscode.window.showInformationMessage('A virtual display will be available in a separate browser window.');
             setTimeout(() => {
                 vscode.env.openExternal(vscode.Uri.parse(VNC_URL));
-                vscode.commands.executeCommand("workbench.explorer.fileView.focus");
+                vscode.commands.executeCommand('workbench.explorer.fileView.focus');
             }, 2000);
             break;
         }
@@ -65,21 +65,21 @@ export function shutdown() {
 
     // Kill x11vnc VNC server
     exec(`pkill -f x11vnc`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
 
     // Kill noVNC VNC client
     exec(`fuser -k ${NOVNC_PORT}/tcp`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
 
     // Kill processes running on VNC server port
     exec(`fuser -k ${VNC_SERVER_PORT}/tcp`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
     });
@@ -88,7 +88,7 @@ export function shutdown() {
 export function createVirtualDisplay() {
     try {
         exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
-            "env": process.env
+            'env': process.env
         });
     } catch (error) {
         console.log(error);

@@ -33,7 +33,7 @@ def main():
 
         # Check to see if BFG repo cleaner is already installed
         if not os.path.isfile(f"{INSTALL_DIR}/{BFG}"):
-            print(red(f"Downloading BFG repo cleaner to {INSTALL_DIR} ..."))
+            print(yellow(f"Downloading BFG repo cleaner to {INSTALL_DIR} ..."))
             subprocess.run(f"wget https://repo1.maven.org/maven2/com/madgag/bfg/{BFG_VERSION}/{BFG} -P {INSTALL_DIR}/",
                 check=True, shell=True, stdout=stdout, stderr=stderr
             )

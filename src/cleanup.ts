@@ -13,7 +13,7 @@ function clean_up() {
 function activateGitDoc() {
     setTimeout(() => {
         try {
-            vscode.commands.executeCommand("gitdoc.enable");
+            vscode.commands.executeCommand('gitdoc.enable');
         } catch (e) {
             console.log(e);
         }
@@ -31,7 +31,7 @@ function reset_html_file_association() {
         let file = fs.readFileSync(workspace_settings,'utf8');
 
         // Remove comments
-        file = file.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? '' : m);
+        file = file.replace(/\\'|'(?:\\'|[^'])*'|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? '' : m);
 
         const settings = JSON.parse(file);
         // eslint-disable-next-line no-prototype-builtins

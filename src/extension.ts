@@ -15,9 +15,9 @@ let ws: WebSocket | null = null;
 let wss: WebSocket.Server | null = null;
 
 interface payload {
-    "command": string,
+    'command': string,
     // eslint-disable-next-line @typescript-eslint/ban-types
-    "payload": Object
+    'payload': Object
 }
 
 async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
@@ -35,41 +35,41 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
                 const data: payload = JSON.parse(event.data as string);
 
                 // Launch debugger
-                if (data.command === "start_debugger") {
+                if (data.command === 'start_debugger') {
                     launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
                 }
 
                 // Terminate debugger
-                if (data.command === "stop_debugger") {
+                if (data.command === 'stop_debugger') {
                     vscode.debug.stopDebugging();
                 }
 
                 // Execute commands
-                if (data.command === "execute_command") {
-                    const command = JSON.stringify(data.payload["command"]).replace(/['"]+/g, "");
-                    const args = data.payload["args"];
+                if (data.command === 'execute_command') {
+                    const command = JSON.stringify(data.payload['command']).replace(/['']+/g, '');
+                    const args = data.payload['args'];
                     vscode.commands.executeCommand(command, args);
                 }
 
                 // Prompt a message then execute a command, if any
-                if (data.command == "prompt") {
-                    if (data.payload["action"] == null) {
-                        data.payload["action"] = "";
+                if (data.command == 'prompt') {
+                    if (data.payload['action'] == null) {
+                        data.payload['action'] = '';
                     }
-                    if (data.payload["title"] == null) {
+                    if (data.payload['title'] == null) {
                         vscode.window.showInformationMessage < vscode.MessageItem > (
-                            data.payload["body"], {
+                            data.payload['body'], {
                                 modal: true
                             }).then(() => {
-                            vscode.commands.executeCommand(data.payload["action"]);
+                            vscode.commands.executeCommand(data.payload['action']);
                         });
                     } else {
                         vscode.window.showInformationMessage < vscode.MessageItem > (
-                            data.payload["title"], {
+                            data.payload['title'], {
                                 modal: true,
-                                detail: data.payload["body"]
+                                detail: data.payload['body']
                             }).then(() => {
-                            vscode.commands.executeCommand(data.payload["action"]);
+                            vscode.commands.executeCommand(data.payload['action']);
                         });
                     }
                 }
@@ -78,8 +78,8 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
     });
 
     vscode.debug.onDidStartDebugSession(() => {
-        ws.send("started_debugger");
-        vscode.commands.executeCommand("workbench.view.debug");
+        ws.send('started_debugger');
+        vscode.commands.executeCommand('workbench.view.debug');
     });
 
     // Terminate debug session if libc-start.c is stepped over/into
@@ -88,11 +88,11 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
             return;
         }
 
-        const skipFiles = ["libc-start.c", "libc_start_call_main.h"];
+        const skipFiles = ['libc-start.c', 'libc_start_call_main.h'];
         skipFiles.find(element => {
-            if (event["document"]["fileName"].includes(element)) {
+            if (event['document']['fileName'].includes(element)) {
                 setTimeout(() => {
-                    vscode.commands.executeCommand("workbench.action.closeActiveEditor");
+                    vscode.commands.executeCommand('workbench.action.closeActiveEditor');
                     vscode.debug.stopDebugging();
                 }, 100);
                 return;
@@ -106,12 +106,12 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         // https://github.com/microsoft/vscode/issues/63813
         for (const terminal of vscode.window.terminals) {
             const terminal_name = terminal.name.toLowerCase();
-            if (terminal_name.includes("debug") || terminal_name.includes("cppdbg")) {
+            if (terminal_name.includes('debug') || terminal_name.includes('cppdbg')) {
                 terminal.dispose();
             }
         }
-        vscode.commands.executeCommand("workbench.explorer.fileView.focus");
-        ws.send("terminated_debugger");
+        vscode.commands.executeCommand('workbench.explorer.fileView.focus');
+        ws.send('terminated_debugger');
     });
 }
 
@@ -127,15 +127,15 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Set CS50_GH_USER environment variable for submit50
     const evc = context.environmentVariableCollection;
-    if (evc.get("CS50_GH_USER") == undefined) {
-        console.log("Setting CS50_GH_USER environment variable and relaunching terminal");
-        evc.append("CS50_GH_USER", process.env.GITHUB_USER);
+    if (evc.get('CS50_GH_USER') == undefined) {
+        console.log('Setting CS50_GH_USER environment variable and relaunching terminal');
+        evc.append('CS50_GH_USER', process.env.GITHUB_USER);
     }
-    evc.replace("CS50_GH_USER", process.env.GITHUB_USER);
+    evc.replace('CS50_GH_USER', process.env.GITHUB_USER);
 
     // Kill process running on port 1337 and start WebSocket server
     exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
-        "env": process.env
+        'env': process.env
     }, (error, stdout, stderr) => {
         startWebsocketServer(DEFAULT_PORT, context);
     });
@@ -144,14 +144,14 @@ export function activate(context: vscode.ExtensionContext) {
     vnc.createVirtualDisplay();
 
     // Tidy UI
-    const workbenchConfig = vscode.workspace.getConfiguration("workbench");
-    if (!workbenchConfig["activityBar"]["visible"]) {
-        vscode.commands.executeCommand("workbench.action.toggleActivityBarVisibility");
+    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+    if (!workbenchConfig['activityBar']['visible']) {
+        vscode.commands.executeCommand('workbench.action.toggleActivityBarVisibility');
     }
-    if (workbenchConfig["statusBar"]["visible"]) {
-        vscode.commands.executeCommand("workbench.action.toggleStatusbarVisibility");
+    if (workbenchConfig['statusBar']['visible']) {
+        vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
     }
-    vscode.commands.executeCommand("workbench.action.terminal.focus");
+    vscode.commands.executeCommand('workbench.action.terminal.focus');
 
     // Parse GitHub preview links as localhost urls
     openPreviewLinkAsLocalhostUrl();
