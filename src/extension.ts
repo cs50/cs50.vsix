@@ -151,7 +151,13 @@ export function activate(context: vscode.ExtensionContext) {
     if (workbenchConfig['statusBar']['visible']) {
         vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
     }
-    vscode.commands.executeCommand('workbench.action.terminal.focus');
+
+    // Create a terminal if no active terminal
+    if (vscode.window.terminals.length != 0) {
+        vscode.window.activeTerminal.show();
+    } else {
+        vscode.window.createTerminal('bash', 'bash', ['--login']).show();
+    }
 
     // Parse GitHub preview links as localhost urls
     openPreviewLinkAsLocalhostUrl();
