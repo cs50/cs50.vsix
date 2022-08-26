@@ -130,6 +130,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (evc.get('CS50_GH_USER') == undefined) {
         console.log('Setting CS50_GH_USER environment variable and relaunching terminal');
         evc.append('CS50_GH_USER', process.env.GITHUB_USER);
+        vscode.commands.executeCommand("cs50.resetTerminal");
     }
     evc.replace('CS50_GH_USER', process.env.GITHUB_USER);
 
