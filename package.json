@@ -24,15 +24,6 @@
                 "icon": "$(home)"
             }
         ],
-        "menus": {
-            "view/title": [
-              {
-                "command": "cs50.returnHome",
-                "group": "navigation",
-                "when": "view.workbench.explorer.fileView.visible"
-              }
-            ]
-        },
         "keybindings": [
             {
                 "key": "ctrl+`",
