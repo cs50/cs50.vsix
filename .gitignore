@@ -3,7 +3,9 @@
 !/.eslintrc.js
 !/.vscodeignore
 !.gitignore
-
+!/.vscode
+!/.vscode/launch.json
+!/.vscode/tasks.json
 *.vsix
 out
 node_modules/
