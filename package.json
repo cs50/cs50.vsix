@@ -19,11 +19,25 @@
     "contributes": {
         "commands": [
             {
+                "command": "cs50.openAsLab",
+                "title": "Open Folder as CS50 Lab",
+                "icon": "$(test-view-icon)"
+            },
+            {
                 "command": "cs50.returnHome",
                 "title": "Go to Home Folder",
                 "icon": "$(home)"
             }
         ],
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "cs50.openAsLab",
+                    "when": "explorerResourceIsFolder",
+                    "group": "navigation@0"
+                }
+            ]
+        },
         "keybindings": [
             {
                 "key": "ctrl+`",
@@ -77,6 +91,7 @@
     },
     "dependencies": {
         "axios": "^0.24.0",
+        "js-yaml": "^4.1.0",
         "tcp-port-used": "^1.0.2",
         "ws": "^8.4.0"
     }
