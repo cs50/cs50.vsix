@@ -158,7 +158,11 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Create a terminal if no active terminal
     if (vscode.window.terminals.length != 0) {
-        vscode.window.activeTerminal.show();
+        try {
+            vscode.window.activeTerminal.show();
+        } catch (e) {
+            console.log(e);
+        }
     } else {
         vscode.window.createTerminal('bash', 'bash', ['--login']).show();
     }
