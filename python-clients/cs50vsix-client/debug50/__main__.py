@@ -68,7 +68,6 @@ LAUNCH_CONFIG = {
 def main():
     args, extra_args = parse_args(sys.argv[1:])
     try:
-        print("Launching VS Code debugger...")
         asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
     except KeyboardInterrupt:
         asyncio.get_event_loop().run_until_complete(stop_debugger())
