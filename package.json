@@ -55,6 +55,13 @@
                     "id": "cs50-menu",
                     "name": "CS50 Menu"
                 }
+            ],
+            "cs50-lab": [
+                {
+                    "id": "cs50-lab",
+                    "name": "",
+                    "type": "webview"
+                }
             ]
         },
         "viewsContainers": {
@@ -63,6 +70,11 @@
                     "id": "cs50-menu",
                     "title": "CS50 Menu",
                     "icon": "resources/cs50.svg"
+                },
+                {
+                    "id": "cs50-lab",
+                    "title": "CS50 Lab",
+                    "icon": "$(test-view-icon)"
                 }
             ]
         },

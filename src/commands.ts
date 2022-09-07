@@ -99,6 +99,29 @@ export function registerCommand(context: vscode.ExtensionContext) {
                         console.log(`${githubRawURL}/${fileToUpdates[i]}`);
                     }
 
+                    vscode.window.registerWebviewViewProvider("cs50-lab", {
+                        resolveWebviewView: async (webView) => {
+                          const workspaceFolder = vscode.workspace.workspaceFolders![0];
+                          webView.webview.options = {
+                            enableCommandUris: true,
+                            enableScripts: true,
+                            localResourceRoots: [workspaceFolder.uri]
+                          };
+
+                          webView.webview.html = `
+                            <!DOCTYPE html>
+                            <html>
+                              <head>
+                                <meta charset="utf-8">
+                              </head>
+                              <body>TODO</body>
+                            </html>`;
+                        }
+                      });
+
+                      vscode.commands.executeCommand('cs50-lab.focus');
+
+
                 } catch (e) {
                     console.log(e);
                 }
