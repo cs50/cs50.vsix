@@ -6,7 +6,7 @@ import os
 import sys
 import websockets
 
-DEFAULT_PORT = 1337
+DEFAULT_PORT = os.getenv("CS50_EXTENSION_PORT", 1337)
 SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 
 async def execute(command):

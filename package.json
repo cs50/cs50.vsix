@@ -55,8 +55,7 @@
         "viewsWelcome": [
             {
                 "view": "cs50-menu",
-                "contents":
-                    "Launch noVNC client to view your GUI program:\n[GUI](command:cs50.launchGUI)\nReset your terminal if it doesn't look right:\n[Reset Terminal](command:cs50.resetTerminal)\nUpdate or rebuild your Codespace:\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\nIf your Codespace has stopped syncing with its backing repository due to git operation errors (e.g., files larger than 100M were added to commit history), you may want to perform a repository cleanup.\n[WARNING] Make sure you have a backup of your important files before using this tool:\n[Cleanup Repository](command:cs50.cleanupRepository)"
+                "contents": "Launch noVNC client to view your GUI program:\n[GUI](command:cs50.launchGUI)\nReset your terminal if it doesn't look right:\n[Reset Terminal](command:cs50.resetTerminal)\nUpdate or rebuild your Codespace:\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\nIf your Codespace has stopped syncing with its backing repository due to git operation errors (e.g., files larger than 100M were added to commit history), you may want to perform a repository cleanup.\n[WARNING] Make sure you have a backup of your important files before using this tool:\n[Cleanup Repository](command:cs50.cleanupRepository)"
             }
         ]
     },

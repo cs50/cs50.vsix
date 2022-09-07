@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import * as tcpPorts from 'tcp-port-used';
 import WebSocket = require('ws');
 import { exec } from 'child_process';
 import { clean_up } from './cleanup';
@@ -22,9 +23,15 @@ interface payload {
 
 async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
     try {
-        wss = new WebSocket.Server({
-            port
-        });
+        let isInUse = await tcpPorts.check(port);
+        while(isInUse) {
+            port +=1;
+            isInUse = await tcpPorts.check(port);
+        }
+        wss = new WebSocket.Server({ port });
+        const evc = context.environmentVariableCollection;
+        evc.replace('CS50_EXTENSION_PORT', `${port}`);
+        vscode.commands.executeCommand('cs50.resetTerminal');
     } catch (error) {
         console.log(error);
     }
@@ -134,12 +141,8 @@ export function activate(context: vscode.ExtensionContext) {
     }
     evc.replace('CS50_GH_USER', process.env.GITHUB_USER);
 
-    // Kill process running on port 1337 and start WebSocket server
-    exec(`PATH=$PATH:/home/ubuntu/.local/bin && fuser -k ${DEFAULT_PORT}/tcp`, {
-        'env': process.env
-    }, (error, stdout, stderr) => {
-        startWebsocketServer(DEFAULT_PORT, context);
-    });
+    // Start WebSocket server
+    startWebsocketServer(DEFAULT_PORT, context);
 
     // Create virtual display
     vnc.createVirtualDisplay();
