@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as tcpPorts from 'tcp-port-used';
 import WebSocket = require('ws');
-import { exec } from 'child_process';
 import { clean_up } from './cleanup';
 import { launchDebugger } from './debug';
 import { checkForUpdates, detectInsiderVersion } from './updates';
@@ -137,7 +136,6 @@ export function activate(context: vscode.ExtensionContext) {
     if (evc.get('CS50_GH_USER') == undefined) {
         console.log('Setting CS50_GH_USER environment variable and relaunching terminal');
         evc.append('CS50_GH_USER', process.env.GITHUB_USER);
-        vscode.commands.executeCommand("cs50.resetTerminal");
     }
     evc.replace('CS50_GH_USER', process.env.GITHUB_USER);
 
