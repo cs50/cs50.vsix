@@ -151,6 +151,7 @@ async function labViewHandler(fileUri: any) {
 
             // Update lab view/layout
             webViewGlobal.webview.html = boiler;
+            vscode.commands.executeCommand('cs50-lab.focus');
         });
 
 
