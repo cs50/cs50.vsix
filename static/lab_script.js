@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log(window.innerHeight);
     let allNextBtns = document.querySelectorAll("[data-next]");
     for (let i = 0; i < allNextBtns.length; i++) {
         allNextBtns[i].addEventListener("click", handleNext);
@@ -13,17 +14,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleNext(event) {
     event.target.setAttribute('disabled', 'true');
+
+    let prev = event.target.parentElement;
     let next = event.target.parentElement.nextElementSibling;
-    while (next != null) {
+    whileLoop: while (next != null) {
         let children = next.children;
         for (let i = 0; i < children.length; i++) {
             let child = children[i];
             if (child.hasAttribute('data-next')) {
                 child.parentElement.classList.remove('next');
-                return;
+                break whileLoop;
             }
         }
         next.classList.remove('next');
+        prev = next;
         next = next.nextElementSibling;
     }
+    let top = prev.offsetTop;
+    let bottom = top + prev.offsetHeight;
+    console.log(top, bottom);
+    window.scrollBy(0, (bottom + 1));
+    console.log("scrolled");
 }
