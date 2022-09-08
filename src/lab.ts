@@ -109,6 +109,13 @@ export async function lab(context: vscode.ExtensionContext) {
                 parse(tagToken, remainTokens) {
                 this.tpls = [];
                 this.args = tagToken.args;
+
+                // Parse spoiler summary, if any (default to "Spoiler")
+                this.summary = this.args.replaceAll('"', "").trim();
+                if (this.summary == '') {
+                    this.summary = 'Spoiler';
+                }
+
                 let closed = false;
                 while(remainTokens.length) {
                     let token = remainTokens.shift();
@@ -128,16 +135,19 @@ export async function lab(context: vscode.ExtensionContext) {
                     if (!closed) throw new Error(`tag ${tagToken.getText()} not closed`);
                 },
                 * render(context, emitter) {
-                emitter.write(`<div class='spoiler'>`);
+                emitter.write(`<details class='spoiler'>`);
+                emitter.write(`<summary>${this.summary}</summary>`);
                 yield this.liquid.renderer.renderTemplates(this.tpls, context, emitter);
-                emitter.write("</div>");
+                emitter.write("</details>");
                 }
             });
 
             // Register a video tag
             engine.registerTag('video', {
                 parse: function(tagToken, remainTokens) {
-                    this.url = tagToken.args.replace('"', "");
+
+                    // Get YouTube URL
+                    this.url = tagToken.args.replaceAll('"', "").trim();
                 },
                 render: async function(ctx) {
                     const ytEmbedLink = `https://www.youtube.com/embed/${yt_parser(this.url)}`;
