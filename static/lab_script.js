@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let nextElementSibling = allNextBtns[i].parentElement.nextElementSibling;
         while (nextElementSibling != null) {
             nextElementSibling.classList.add('next');
+            nextElementSibling.classList.add('fade-in');
             nextElementSibling = nextElementSibling.nextElementSibling;
         }
     }

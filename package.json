@@ -21,7 +21,7 @@
             {
                 "command": "cs50.openAsLab",
                 "title": "Open Folder as CS50 Lab",
-                "icon": "$(test-view-icon)"
+                "icon": "$(notebook-open-as-text)"
             },
             {
                 "command": "cs50.reloadLab",
@@ -96,7 +96,7 @@
                 {
                     "id": "cs50-lab",
                     "title": "CS50 Lab",
-                    "icon": "$(test-view-icon)"
+                    "icon": "$(notebook-open-as-text)"
                 }
             ]
         },

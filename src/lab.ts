@@ -67,17 +67,17 @@ export async function lab(context: vscode.ExtensionContext) {
             // Get a list of files that we wish to update then
             // download them (no spaces in path allow for now)
 
-            // const filesToUpdate = configFile['vscode']['filesToUpdate'];
-            // for (let i = 0; i < filesToUpdate.length; i++) {
-            //     const fileURL = `${fileUri['path']}/${filesToUpdate[i]}`;
-            //     const command = `wget ${githubRawURL}/${filesToUpdate[i]} -O ${fileURL}`;
-            //     try {
-            //         const stdout = execSync(command, {timeout: 5000}).toString();
-            //         console.log(stdout);
-            //     } catch (e) {
-            //         console.log(e);
-            //     }
-            // }
+            const filesToUpdate = configFile['vscode']['filesToUpdate'];
+            for (let i = 0; i < filesToUpdate.length; i++) {
+                const fileURL = `${fileUri['path']}/${filesToUpdate[i]}`;
+                const command = `wget ${githubRawURL}/${filesToUpdate[i]} -O ${fileURL}`;
+                try {
+                    const stdout = execSync(command, {timeout: 5000}).toString();
+                    console.log(stdout);
+                } catch (e) {
+                    console.log(e);
+                }
+            }
 
             // Backup current opened text editors
             if (!labDidOpen) {
@@ -104,7 +104,7 @@ export async function lab(context: vscode.ExtensionContext) {
                     return;
                 },
                 render: async function(ctx) {
-                    const htmlString = `<button class="btn btn-primary" data-next type="button">Next</button>`;
+                    const htmlString = `<button class="btn btn-success" data-next type="button">Next</button>`;
                     return htmlString.trim();
                 }
             });
