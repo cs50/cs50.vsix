@@ -1,18 +1,20 @@
-import { execSync } from 'child_process';
+
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import { Liquid } from 'liquidjs';
+import { execSync } from 'child_process';
 import { decode } from 'html-entities';
+import { Liquid } from 'liquidjs';
 import MarkdownIt = require('markdown-it');
 
 export async function lab(context: vscode.ExtensionContext) {
 
-    // Declare global variable to reference a webview
-    let webViewGlobal : vscode.WebviewView;
-    let currentLabFolderUri : any;
-    let saveOpenedTextEditors : any;
-    let labDidOpen = false;
+    const CONFIG_FILE_NAME = '.cs50.yml';     // Default config yml file name
+
+    let webViewGlobal : vscode.WebviewView;   // Global reference to a webview
+    let currentLabFolderUri : any;            // Current opened lab folder
+    let saveOpenedTextEditors : any;          // Saved text editors before lab is opened
+    let labDidOpen = false;                   // Current state of the lab
 
     // Register webview view provider
     vscode.window.registerWebviewViewProvider('cs50-lab', {
@@ -24,9 +26,14 @@ export async function lab(context: vscode.ExtensionContext) {
                 localResourceRoots: [workspaceFolder.uri]
             };
             webViewGlobal = webView;
-            console.log("cs50-lab view registered");
         }
     });
+
+    function yt_parser(url){
+        const regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match&&match[7].length==11)? match[7] : false;
+    }
 
     async function labViewHandler(fileUri: any) {
         currentLabFolderUri = fileUri;
@@ -40,20 +47,9 @@ export async function lab(context: vscode.ExtensionContext) {
             return;
         }
 
-        // User attempts to open a folder as CS50 lab
-        console.log('opening folder as cs50 lab...');
-        console.log(`fileUri: ${fileUri}`);
-
         // Inspect folder structure and look for configuration file
-        const configFileName = '.cs50.yml';
-        const configFilePath = `${fileUri['path']}/${configFileName}`;
-        console.log(`Looking for config file at: ${configFilePath}`);
-
+        const configFilePath = `${fileUri['path']}/${CONFIG_FILE_NAME}`;
         if (fs.existsSync(configFilePath)) {
-
-            // Located config file, do whatever needs to be done
-            console.log(`${configFileName} exists`);
-            console.log(fileUri);
 
             // Load config file
             const configFile = yaml.load(fs.readFileSync(configFilePath, 'utf8'));
@@ -64,23 +60,24 @@ export async function lab(context: vscode.ExtensionContext) {
             // Generate GitHub raw base url
             const githubRawURL = `https://raw.githubusercontent.com/${slug}`;
 
-            // Get a list of files that we wish to override
+            // Get a list of files that we wish to update then
+            // download them (no spaces in path allow for now)
             const filesToUpdate = configFile['vscode']['filesToUpdate'];
-
-            // Download the latest file (no spaces in path allow for now)
             for (let i = 0; i < filesToUpdate.length; i++) {
                 const fileURL = `${fileUri['path']}/${filesToUpdate[i]}`;
                 const command = `wget ${githubRawURL}/${filesToUpdate[i]} -O ${fileURL}`;
-                const stdout = execSync(command).toString();
-                console.log(stdout);
+                try {
+                    const stdout = execSync(command, {timeout: 5000}).toString();
+                    console.log(stdout);
+                } catch (e) {
+                    console.log(e);
+                }
             }
 
             // Backup current opened text editors
-
             if (!labDidOpen) {
                 saveOpenedTextEditors = vscode.window.visibleTextEditors;
             }
-
             await vscode.commands.executeCommand('workbench.action.closeAllEditors');
             const filesToOpen = configFile['vscode']['starterFiles'];
             for (let i = 0; i < filesToOpen.length; i++) {
@@ -92,7 +89,7 @@ export async function lab(context: vscode.ExtensionContext) {
             await vscode.commands.executeCommand('workbench.action.terminal.focus');
             vscode.window.activeTerminal.sendText(`cd ${fileUri['path']} && clear`);
 
-            // Load README.md and render in webview
+            // Parse and render README.md
             const engine = new Liquid();
 
             // Register a next tag
@@ -140,22 +137,20 @@ export async function lab(context: vscode.ExtensionContext) {
             // Register a video tag
             engine.registerTag('video', {
                 parse: function(tagToken, remainTokens) {
-                    this.url = tagToken.args.replace('"', ""); // name
+                    this.url = tagToken.args.replace('"', "");
+                    console.log(this.url);
                 },
                 render: async function(ctx) {
-                    const htmlString = `<div class="ratio ratio-16x9"><iframe allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="border" src="${this.url}?modestbranding=0&rel=0&showinfo=0"></iframe></div>`;
+                    const ytEmbedLink = `https://www.youtube.com/embed/${yt_parser(this.url)}`;
+                    const htmlString = `<div class="ratio ratio-16x9"><iframe sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-top-navigation allow-presentation" width="560" height="315" src="${ytEmbedLink}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
                     return htmlString;
                 }
             });
 
             const markdown = fs.readFileSync(`${fileUri['path']}/README.md`, {encoding: 'utf-8'});
-            console.log(markdown);
 
             // Have liquidJS make the first pass to convert all tags to html equivalents
-            engine.parseAndRender(markdown).then(parsedMarkdown => {
-
-                console.log("parsed markdown: ");
-                console.log(parsedMarkdown);
+            engine.parseAndRender(markdown).then(async parsedMarkdown => {
 
                 // Have MarkDoc re-parse everything
                 const md = new MarkdownIt();
@@ -172,16 +167,13 @@ export async function lab(context: vscode.ExtensionContext) {
                     <body>${decodedHtml}</body>
                 </html>`;
 
-                console.log("html:");
-                console.log(boiler);
-
                 // Update lab view/layout
                 webViewGlobal.webview.html = boiler;
+                await vscode.commands.executeCommand('cs50-lab.focus');
                 labDidOpen = true;
-                vscode.commands.executeCommand('cs50-lab.focus');
             });
         } else {
-            vscode.window.showWarningMessage(`Unable to locate ${configFileName}`);
+            vscode.window.showWarningMessage(`Unable to locate ${CONFIG_FILE_NAME}`);
         }
     }
 
@@ -201,7 +193,6 @@ export async function lab(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('cs50.closeLab', async () => {
             for (let i = 0; i < saveOpenedTextEditors.length; i++) {
-                console.log(saveOpenedTextEditors[i]);
                 await vscode.window.showTextDocument(
                     vscode.Uri.file(saveOpenedTextEditors[i]['document']['uri']['path']),
                     { viewColumn: i + 1 }
@@ -210,6 +201,8 @@ export async function lab(context: vscode.ExtensionContext) {
             await vscode.commands.executeCommand('workbench.explorer.fileView.focus');
             await vscode.commands.executeCommand('workbench.action.terminal.focus');
             vscode.window.activeTerminal.sendText(`cd ${vscode.workspace.workspaceFolders[0]['uri']['path']} && clear`);
+
+            // Reset global variables
             saveOpenedTextEditors = undefined;
             labDidOpen = false;
         })
