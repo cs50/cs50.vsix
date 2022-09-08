@@ -7,6 +7,7 @@ import { checkForUpdates, detectInsiderVersion } from './updates';
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
+import { lab } from './lab';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -130,6 +131,9 @@ export function activate(context: vscode.ExtensionContext) {
 
     // Register Commands
     registerCommand(context);
+
+    // Load lab
+    lab(context);
 
     // Set CS50_GH_USER environment variable for submit50
     const evc = context.environmentVariableCollection;
