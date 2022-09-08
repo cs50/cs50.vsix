@@ -59,7 +59,7 @@
             "cs50-lab": [
                 {
                     "id": "cs50-lab",
-                    "name": "",
+                    "name": "CS50 Lab",
                     "type": "webview"
                 }
             ]

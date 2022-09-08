@@ -6,6 +6,70 @@ import * as yaml from 'js-yaml';
 
 export function registerCommand(context: vscode.ExtensionContext) {
 
+    // Declare global variable to reference a webview
+    let webViewGlobal;
+    vscode.window.registerWebviewViewProvider('cs50-lab', {
+        resolveWebviewView: (webView) => {
+            const workspaceFolder = vscode.workspace.workspaceFolders![0];
+            webView.webview.options = {
+                enableCommandUris: true,
+                enableScripts: true,
+                localResourceRoots: [workspaceFolder.uri]
+            };
+            webView.webview.html = `
+            <!DOCTYPE html>
+            <html>
+                <head>
+                <meta charset="utf-8">
+                </head>
+                <body>No lab opened.</body>
+            </html>`;
+            webViewGlobal = webView;
+        }
+    });
+
+    async function labViewHandler(fileUri: any) {
+
+        // User attempt to open a folder as CS50 lab
+        console.log('opening folder as cs50 lab...');
+        console.log(`fileUri: ${fileUri}`);
+
+        // Inspect folder structure and look for configuration file
+        const configFileName = '.cs50.yml';
+        const configFilePath = `${fileUri['path']}/${configFileName}`;
+
+        console.log(`Looking for config file at: ${configFilePath}`);
+        if (fs.existsSync(configFilePath)) {
+
+            // Located config file, do whatever needs to be done
+            console.log(`${configFileName} exists`);
+
+            // Load config file
+            const configFile = yaml.load(fs.readFileSync(configFilePath, 'utf8'));
+
+            // Read slug
+            const slug = configFile['vscode']['slug'];
+
+            // Generate GitHub raw base url
+            const githubRawURL = `https://raw.githubusercontent.com/${slug}`;
+
+            // Get a list of files that we wish to override
+            const fileToUpdates = configFile['vscode']['filesToUpdate'];
+
+            // Download the latest file
+            for (let i = 0; i < fileToUpdates.length; i++) {
+                console.log(`${githubRawURL}/${fileToUpdates[i]}`);
+            }
+
+            // Update lab view/layout
+            webViewGlobal.webview.html = `${fileUri}`;
+            vscode.commands.executeCommand('cs50-lab.focus');
+
+        } else {
+            vscode.window.showWarningMessage(`Unable to locate ${configFileName}`);
+        }
+    }
+
     // Command: Launch VNC
     let command = 'cs50.launchGUI';
     let commandHandler = () => {
@@ -61,76 +125,8 @@ export function registerCommand(context: vscode.ExtensionContext) {
 
     // Command: Open Folder as CS50 Lab
     context.subscriptions.push(
-        vscode.commands.registerCommand(
-          `cs50.openAsLab`,
-          function (fileUri) {
-
-            // User attempt to open a folder as CS50 lab
-            console.log('opening folder as cs50 lab...');
-            console.log(fileUri);
-
-            // Inspect folder structure and look for configuration file
-            const configFileName = '.cs50.yml';
-            const configFilePath = `${fileUri['path']}/${configFileName}`;
-
-            console.log(`Looking for config file at: ${configFilePath}`);
-            if (fs.existsSync(configFilePath)) {
-
-                // Located config file, do whatever needs to be done
-                console.log(`${configFileName} exists`);
-
-                // Read config file
-                try {
-
-                    // Load config file
-                    const configFile = yaml.load(fs.readFileSync(configFilePath, 'utf8'));
-
-                    // Read slug
-                    const slug = configFile['vscode']['slug'];
-
-                    // Generate GitHub raw base url
-                    const githubRawURL = `https://raw.githubusercontent.com/${slug}`;
-
-                    // Get a list of files that we wish to override
-                    const fileToUpdates = configFile['vscode']['filesToUpdate'];
-
-                    // Download the latest file
-                    for (let i = 0; i < fileToUpdates.length; i++) {
-                        console.log(`${githubRawURL}/${fileToUpdates[i]}`);
-                    }
-
-                    vscode.window.registerWebviewViewProvider("cs50-lab", {
-                        resolveWebviewView: async (webView) => {
-                          const workspaceFolder = vscode.workspace.workspaceFolders![0];
-                          webView.webview.options = {
-                            enableCommandUris: true,
-                            enableScripts: true,
-                            localResourceRoots: [workspaceFolder.uri]
-                          };
-
-                          webView.webview.html = `
-                            <!DOCTYPE html>
-                            <html>
-                              <head>
-                                <meta charset="utf-8">
-                              </head>
-                              <body>TODO</body>
-                            </html>`;
-                        }
-                      });
-
-                      vscode.commands.executeCommand('cs50-lab.focus');
-
-
-                } catch (e) {
-                    console.log(e);
-                }
-
-
-            } else {
-                vscode.window.showWarningMessage(`Unable to locate ${configFileName}`);
-            }
-          }
-        )
-      );
+        vscode.commands.registerCommand(`cs50.openAsLab`, labViewHandler)
+    );
 }
+
+
