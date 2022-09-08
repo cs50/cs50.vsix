@@ -9,7 +9,8 @@ import MarkdownIt = require('markdown-it');
 export async function lab(context: vscode.ExtensionContext) {
 
     // Declare global variable to reference a webview
-    let webViewGlobal:vscode.WebviewView;
+    let webViewGlobal : vscode.WebviewView;
+    let currentLabFolderUri : any;
 
     // Register webview view provider
     vscode.window.registerWebviewViewProvider('cs50-lab', {
@@ -26,6 +27,7 @@ export async function lab(context: vscode.ExtensionContext) {
     });
 
     async function labViewHandler(fileUri: any) {
+        currentLabFolderUri = fileUri;
 
         // First-time open a webview
         if (webViewGlobal == undefined) {
@@ -177,6 +179,13 @@ export async function lab(context: vscode.ExtensionContext) {
 
     // Command: Open Folder as CS50 Lab
     context.subscriptions.push(
-        vscode.commands.registerCommand(`cs50.openAsLab`, labViewHandler)
+        vscode.commands.registerCommand('cs50.openAsLab', labViewHandler)
+    );
+
+    // Command: Reset Lab View
+    context.subscriptions.push(
+        vscode.commands.registerCommand('cs50.reloadLab', () => {
+            labViewHandler(currentLabFolderUri);
+        })
     );
 }
