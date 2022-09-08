@@ -11,6 +11,8 @@ export async function lab(context: vscode.ExtensionContext) {
     // Declare global variable to reference a webview
     let webViewGlobal : vscode.WebviewView;
     let currentLabFolderUri : any;
+    let saveOpenedTextEditors : any;
+    let labDidOpen = false;
 
     // Register webview view provider
     vscode.window.registerWebviewViewProvider('cs50-lab', {
@@ -73,7 +75,12 @@ export async function lab(context: vscode.ExtensionContext) {
                 console.log(stdout);
             }
 
-            // Get a list of files that we wish to open for user
+            // Backup current opened text editors
+
+            if (!labDidOpen) {
+                saveOpenedTextEditors = vscode.window.visibleTextEditors;
+            }
+
             await vscode.commands.executeCommand('workbench.action.closeAllEditors');
             const filesToOpen = configFile['vscode']['starterFiles'];
             for (let i = 0; i < filesToOpen.length; i++) {
@@ -170,6 +177,7 @@ export async function lab(context: vscode.ExtensionContext) {
 
                 // Update lab view/layout
                 webViewGlobal.webview.html = boiler;
+                labDidOpen = true;
                 vscode.commands.executeCommand('cs50-lab.focus');
             });
         } else {
@@ -186,6 +194,24 @@ export async function lab(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.commands.registerCommand('cs50.reloadLab', () => {
             labViewHandler(currentLabFolderUri);
+        })
+    );
+
+    // Command: Close Lab
+    context.subscriptions.push(
+        vscode.commands.registerCommand('cs50.closeLab', async () => {
+            for (let i = 0; i < saveOpenedTextEditors.length; i++) {
+                console.log(saveOpenedTextEditors[i]);
+                await vscode.window.showTextDocument(
+                    vscode.Uri.file(saveOpenedTextEditors[i]['document']['uri']['path']),
+                    { viewColumn: i + 1 }
+                );
+            }
+            await vscode.commands.executeCommand('workbench.explorer.fileView.focus');
+            await vscode.commands.executeCommand('workbench.action.terminal.focus');
+            vscode.window.activeTerminal.sendText(`cd ${vscode.workspace.workspaceFolders[0]['uri']['path']} && clear`);
+            saveOpenedTextEditors = undefined;
+            labDidOpen = false;
         })
     );
 }
