@@ -160,12 +160,20 @@ export async function lab(context: vscode.ExtensionContext) {
                 const decodedHtml = decode(parsedHtml);
 
                 // Prepare final HTML for rendering
-                const html = `
+                const scriptUri = webViewGlobal.webview.asWebviewUri(
+                    vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, 'static', 'lab_script.js'));
+
+                const styleUri = webViewGlobal.webview.asWebviewUri(
+                    vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, 'static', 'lab_style.css'));
+
+                    const html = `
                 <!DOCTYPE html>
                 <html>
                     <head>
                     <meta charset="utf-8">
                     <base href="${webViewGlobal.webview.asWebviewUri(vscode.Uri.file(readmePath))}">
+                    <link href="${styleUri}" rel="stylesheet">
+					<script src="${scriptUri}"></script>
                     </head>
                     <body>${decodedHtml}</body>
                 </html>`;
