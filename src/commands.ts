@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { exec, execSync } from 'child_process';
 import * as vscode from 'vscode';
 import { startVNC } from './vnc';
 import * as fs from 'fs';
@@ -43,6 +43,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
 
             // Located config file, do whatever needs to be done
             console.log(`${configFileName} exists`);
+            console.log(fileUri);
 
             // Load config file
             const configFile = yaml.load(fs.readFileSync(configFilePath, 'utf8'));
@@ -56,13 +57,17 @@ export function registerCommand(context: vscode.ExtensionContext) {
             // Get a list of files that we wish to override
             const fileToUpdates = configFile['vscode']['filesToUpdate'];
 
-            // Download the latest file
+            // Download the latest file (no spaces in path allow for now)
             for (let i = 0; i < fileToUpdates.length; i++) {
-                console.log(`${githubRawURL}/${fileToUpdates[i]}`);
+                const fileURL = `${fileUri['path']}/${fileToUpdates[i]}`;
+                const command = `wget ${githubRawURL}/${fileToUpdates[i]} -O ${fileURL}`;
+                const stdout = execSync(command).toString();
+                console.log(stdout);
             }
 
             // Update lab view/layout
             webViewGlobal.webview.html = `${fileUri}`;
+
             vscode.commands.executeCommand('cs50-lab.focus');
 
         } else {
