@@ -99,8 +99,8 @@ export async function lab(context: vscode.ExtensionContext) {
                     return;
                 },
                 render: async function(ctx) {
-                    const htmlString = `<button>A button</button>`;
-                    return htmlString;
+                    const htmlString = `<button class="btn btn-primary" data-next type="button">Next</button>`;
+                    return htmlString.trim();
                 }
             });
 
@@ -152,7 +152,7 @@ export async function lab(context: vscode.ExtensionContext) {
                 render: async function(ctx) {
                     const ytEmbedLink = `https://www.youtube.com/embed/${yt_parser(this.url)}`;
                     const htmlString = `<div class="ratio ratio-16x9"><iframe sandbox="allow-forms allow-scripts allow-pointer-lock allow-same-origin allow-top-navigation allow-presentation" width="560" height="315" src="${ytEmbedLink}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`;
-                    return htmlString;
+                    return htmlString.trim();
                 }
             });
 
@@ -177,16 +177,20 @@ export async function lab(context: vscode.ExtensionContext) {
                     vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, 'static', 'lab_style.css'));
 
                     const html = `
-                <!DOCTYPE html>
-                <html>
-                    <head>
-                    <meta charset="utf-8">
-                    <base href="${webViewGlobal.webview.asWebviewUri(vscode.Uri.file(readmePath))}">
-                    <link href="${styleUri}" rel="stylesheet">
-					<script src="${scriptUri}"></script>
-                    </head>
-                    <body>${decodedHtml}</body>
-                </html>`;
+                        <!DOCTYPE html>
+                        <html>
+                            <head>
+                            <meta charset="utf-8">
+                            <base href="${webViewGlobal.webview.asWebviewUri(vscode.Uri.file(readmePath))}">
+                            <link href="${styleUri}" rel="stylesheet">
+                            <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+                            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+                            <script src="${scriptUri}"></script>
+                            </head>
+                            <body>${decodedHtml}</body>
+                        </html>`.trim();
+
+                console.log(html);
 
                 // Render webview
                 webViewGlobal.webview.html = html;
