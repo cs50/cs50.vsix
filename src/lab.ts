@@ -23,7 +23,7 @@ export async function lab(context: vscode.ExtensionContext) {
             webView.webview.options = {
                 enableCommandUris: true,
                 enableScripts: true,
-                localResourceRoots: [workspaceFolder.uri]
+                localResourceRoots: [context.extension.extensionUri, workspaceFolder.uri]
             };
             webViewGlobal = webView;
         }
@@ -60,19 +60,24 @@ export async function lab(context: vscode.ExtensionContext) {
             // Generate GitHub raw base url
             const githubRawURL = `https://raw.githubusercontent.com/${slug}`;
 
+            // Handle the scenario where lab source is not reachable or timeout
+            // perhaps try downloading files to tmp folder first then move it back
+            // to user's workspace
+            //
             // Get a list of files that we wish to update then
             // download them (no spaces in path allow for now)
-            const filesToUpdate = configFile['vscode']['filesToUpdate'];
-            for (let i = 0; i < filesToUpdate.length; i++) {
-                const fileURL = `${fileUri['path']}/${filesToUpdate[i]}`;
-                const command = `wget ${githubRawURL}/${filesToUpdate[i]} -O ${fileURL}`;
-                try {
-                    const stdout = execSync(command, {timeout: 5000}).toString();
-                    console.log(stdout);
-                } catch (e) {
-                    console.log(e);
-                }
-            }
+
+            // const filesToUpdate = configFile['vscode']['filesToUpdate'];
+            // for (let i = 0; i < filesToUpdate.length; i++) {
+            //     const fileURL = `${fileUri['path']}/${filesToUpdate[i]}`;
+            //     const command = `wget ${githubRawURL}/${filesToUpdate[i]} -O ${fileURL}`;
+            //     try {
+            //         const stdout = execSync(command, {timeout: 5000}).toString();
+            //         console.log(stdout);
+            //     } catch (e) {
+            //         console.log(e);
+            //     }
+            // }
 
             // Backup current opened text editors
             if (!labDidOpen) {
@@ -171,10 +176,10 @@ export async function lab(context: vscode.ExtensionContext) {
 
                 // Prepare final HTML for rendering
                 const scriptUri = webViewGlobal.webview.asWebviewUri(
-                    vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, 'static', 'lab_script.js'));
+                    vscode.Uri.joinPath(context.extension.extensionUri, 'static', 'lab_script.js'));
 
                 const styleUri = webViewGlobal.webview.asWebviewUri(
-                    vscode.Uri.joinPath(vscode.workspace.workspaceFolders![0].uri, 'static', 'lab_style.css'));
+                    vscode.Uri.joinPath(context.extension.extensionUri, 'static', 'lab_style.css'));
 
                     const html = `
                         <!DOCTYPE html>
@@ -189,8 +194,6 @@ export async function lab(context: vscode.ExtensionContext) {
                             </head>
                             <body>${decodedHtml}</body>
                         </html>`.trim();
-
-                console.log(html);
 
                 // Render webview
                 webViewGlobal.webview.html = html;

@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    console.log(window.innerHeight);
     let allNextBtns = document.querySelectorAll("[data-next]");
     for (let i = 0; i < allNextBtns.length; i++) {
         allNextBtns[i].addEventListener("click", handleNext);
@@ -14,9 +13,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function handleNext(event) {
     event.target.setAttribute('disabled', 'true');
-
     let prev = event.target.parentElement;
     let next = event.target.parentElement.nextElementSibling;
+    next.classList.remove('next');
+
+    let top = event.target.offsetTop;
+    let bottom = top + event.target.offsetHeight;
+    setTimeout(() => {
+        window.scrollTo({
+            top: bottom + 1,
+            behavior: 'smooth'
+          });
+    }, 200);
+
     whileLoop: while (next != null) {
         let children = next.children;
         for (let i = 0; i < children.length; i++) {
@@ -30,9 +39,4 @@ function handleNext(event) {
         prev = next;
         next = next.nextElementSibling;
     }
-    let top = prev.offsetTop;
-    let bottom = top + prev.offsetHeight;
-    console.log(top, bottom);
-    window.scrollBy(0, (bottom + 1));
-    console.log("scrolled");
 }
