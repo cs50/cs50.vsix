@@ -19,12 +19,6 @@ function handleNext(event) {
 
     let top = event.target.offsetTop;
     let bottom = top + event.target.offsetHeight;
-    setTimeout(() => {
-        window.scrollTo({
-            top: bottom + 1,
-            behavior: 'smooth'
-          });
-    }, 200);
 
     whileLoop: while (next != null) {
         let children = next.children;
@@ -32,6 +26,11 @@ function handleNext(event) {
             let child = children[i];
             if (child.hasAttribute('data-next')) {
                 child.parentElement.classList.remove('next');
+                document.body.style.minHeight = `${bottom + window.innerHeight}px`;
+                window.scrollTo({
+                    top: bottom + 1,
+                    behavior: 'smooth'
+                  });
                 break whileLoop;
             }
         }
