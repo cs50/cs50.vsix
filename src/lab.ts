@@ -138,7 +138,6 @@ export async function lab(context: vscode.ExtensionContext) {
             engine.registerTag('video', {
                 parse: function(tagToken, remainTokens) {
                     this.url = tagToken.args.replace('"', "");
-                    console.log(this.url);
                 },
                 render: async function(ctx) {
                     const ytEmbedLink = `https://www.youtube.com/embed/${yt_parser(this.url)}`;
@@ -147,28 +146,34 @@ export async function lab(context: vscode.ExtensionContext) {
                 }
             });
 
-            const markdown = fs.readFileSync(`${fileUri['path']}/README.md`, {encoding: 'utf-8'});
+            const readmePath = `${fileUri['path']}/README.md`
+            const markdown = fs.readFileSync(readmePath, {encoding: 'utf-8'});
 
             // Have liquidJS make the first pass to convert all tags to html equivalents
             engine.parseAndRender(markdown).then(async parsedMarkdown => {
 
                 // Have MarkDoc re-parse everything
                 const md = new MarkdownIt();
-                const html = md.render(parsedMarkdown);
+                const parsedHtml = md.render(parsedMarkdown);
 
                 // HTML strings are encoded by MarkDoc, need to decode
-                const decodedHtml = decode(html);
-                const boiler = `
+                const decodedHtml = decode(parsedHtml);
+
+                // Prepare final HTML for rendering
+                const html = `
                 <!DOCTYPE html>
                 <html>
                     <head>
                     <meta charset="utf-8">
+                    <base href="${webViewGlobal.webview.asWebviewUri(vscode.Uri.file(readmePath))}">
                     </head>
                     <body>${decodedHtml}</body>
                 </html>`;
 
-                // Update lab view/layout
-                webViewGlobal.webview.html = boiler;
+                // Render webview
+                webViewGlobal.webview.html = html;
+
+                // Focus labview
                 await vscode.commands.executeCommand('cs50-lab.focus');
                 labDidOpen = true;
             });
@@ -203,6 +208,7 @@ export async function lab(context: vscode.ExtensionContext) {
             vscode.window.activeTerminal.sendText(`cd ${vscode.workspace.workspaceFolders[0]['uri']['path']} && clear`);
 
             // Reset global variables
+            webViewGlobal.webview.html = "Please open a lab.";
             saveOpenedTextEditors = undefined;
             labDidOpen = false;
         })
