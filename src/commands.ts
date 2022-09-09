@@ -1,11 +1,6 @@
-import { exec, execSync } from 'child_process';
+import { exec } from 'child_process';
 import * as vscode from 'vscode';
 import { startVNC } from './vnc';
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
-import { Liquid } from 'liquidjs';
-import { decode } from 'html-entities';
-import MarkdownIt = require('markdown-it');
 
 export function registerCommand(context: vscode.ExtensionContext) {
 
