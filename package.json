@@ -20,7 +20,7 @@
         "commands": [
             {
                 "command": "cs50.openAsLab",
-                "title": "Open Folder as CS50 Lab",
+                "title": "Open Problem Set",
                 "icon": "$(notebook-open-as-text)"
             },
             {
