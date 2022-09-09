@@ -19,47 +19,11 @@
     "contributes": {
         "commands": [
             {
-                "command": "cs50.openAsLab",
-                "title": "Open Problem Set",
-                "icon": "$(notebook-open-as-text)"
-            },
-            {
-                "command": "cs50.reloadLab",
-                "title": "Reload Lab",
-                "icon": "$(extensions-sync-enabled)"
-            },
-            {
-                "command": "cs50.closeLab",
-                "title": "Close Lab",
-                "icon": "$(panel-close)"
-            },
-            {
                 "command": "cs50.returnHome",
                 "title": "Go to Home Folder",
                 "icon": "$(home)"
             }
         ],
-        "menus": {
-            "explorer/context": [
-                {
-                    "command": "cs50.openAsLab",
-                    "when": "explorerResourceIsFolder",
-                    "group": "navigation@0"
-                }
-            ],
-            "view/title": [
-                {
-                    "command": "cs50.reloadLab",
-                    "group": "navigation@0",
-                    "when": "view == cs50-lab"
-                },
-                {
-                    "command": "cs50.closeLab",
-                    "group": "navigation@1",
-                    "when": "view == cs50-lab"
-                }
-            ]
-        },
         "keybindings": [
             {
                 "key": "ctrl+`",
@@ -77,13 +41,6 @@
                     "id": "cs50-menu",
                     "name": "CS50 Menu"
                 }
-            ],
-            "cs50-lab": [
-                {
-                    "id": "cs50-lab",
-                    "name": "CS50 Lab",
-                    "type": "webview"
-                }
             ]
         },
         "viewsContainers": {
@@ -92,11 +49,6 @@
                     "id": "cs50-menu",
                     "title": "CS50 Menu",
                     "icon": "resources/cs50.svg"
-                },
-                {
-                    "id": "cs50-lab",
-                    "title": "CS50 Lab",
-                    "icon": "$(notebook-open-as-text)"
                 }
             ]
         },
@@ -126,11 +78,6 @@
     "dependencies": {
         "@types/react": "^18.0.18",
         "axios": "^0.24.0",
-        "html-entities": "^2.3.3",
-        "js-yaml": "^4.1.0",
-        "liquidjs": "^9.39.1",
-        "markdown-it": "^13.0.1",
-        "pretty": "^2.0.0",
         "tcp-port-used": "^1.0.2",
         "ws": "^8.4.0"
     }
