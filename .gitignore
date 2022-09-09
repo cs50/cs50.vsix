@@ -1,4 +1,5 @@
 .*
+!.cs50.yml
 !/.github/
 !/.eslintrc.js
 !/.vscodeignore
