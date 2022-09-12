@@ -116,7 +116,17 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
                 terminal.dispose();
             }
         }
-        vscode.commands.executeCommand('workbench.explorer.fileView.focus');
+
+        // If a user is in a lab session, focus on lab view
+        try {
+            const labExtension = vscode.extensions.getExtension('cs50.lab50');
+            const api = labExtension.exports;
+            if (api.didOpenLab()) {
+                vscode.commands.executeCommand('lab50.focus');
+            } else {
+                vscode.commands.executeCommand('workbench.explorer.fileView.focus');
+            }
+        } catch (error) {}
         ws.send('terminated_debugger');
     });
 }
