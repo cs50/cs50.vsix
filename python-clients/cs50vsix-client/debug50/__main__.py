@@ -83,16 +83,14 @@ def main():
 async def launch(program, arguments):
     try:
 
-        if (not os.path.isfile(program)):
-            file_not_found(program)
+        # Start java debugger
+        if os.path.isfile(f"{program}.java"):
+            program = f"{program}.java"
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_JAVA, program, program, arguments, java_debugging=True), timeout=30)
 
         # Start python debugger
-        if get_file_extension(program) == ".py":
+        elif get_file_extension(program) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
-
-        # Start java debugger
-        elif get_file_extension(program) == ".java":
-            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_JAVA, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
 
         # Start c/cpp debugger
         else:
@@ -118,12 +116,13 @@ async def launch(program, arguments):
         print(e)
 
 
-async def launch_debugger(config_name, source, executable, arguments, source_files=None):
+async def launch_debugger(config_name, source, executable, arguments, source_files=None, java_debugging=False):
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
         "launch_config": get_config(config_name, executable, arguments),
-        "source_files": source_files
+        "source_files": source_files,
+        "java_debugging": java_debugging
     }
     payload = {
         "command": "start_debugger",
@@ -187,7 +186,7 @@ def verify_executable(source, executable):
 
 
 def file_not_supported(filename):
-    message = f"Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?\nUnsupported File: {filename}"
+    message = f"Can't debug this program! Are you sure you're running debug50 on an executable, a Python script, or a Java program?\nUnsupported File: {filename}"
     print(yellow(message))
     sys.exit(1)
 
