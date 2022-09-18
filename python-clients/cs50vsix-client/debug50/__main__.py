@@ -20,8 +20,9 @@ from debug50.colors import red, yellow
 DEFAULT_PORT = os.getenv("CS50_EXTENSION_PORT", 1337)
 SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 DEBUGGER_TIMEOUT = 10
-LAUNCH_CONFIG_C = "c"
-LAUNCH_CONFIG_PYTHON = "python"
+LAUNCH_CONFIG_C = "C"
+LAUNCH_CONFIG_PYTHON = "Python"
+LAUNCH_CONFIG_JAVA = "Java"
 LAUNCH_CONFIG = {
     "version": "0.2.0",
     "configurations": [
@@ -61,6 +62,12 @@ LAUNCH_CONFIG = {
             "args": [],
             "cwd": f"{os.getcwd()}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": LAUNCH_CONFIG_JAVA,
+            "type": "java",
+            "request": "launch",
+            "mainClass": "${file}"
         }
     ]
 }
@@ -76,17 +83,37 @@ def main():
 async def launch(program, arguments):
     try:
 
-        if (not os.path.isfile(program)):
-            file_not_found(program)
+        # Launch Java debug session (explicitly specified as Java program)
+        if program == "java":
 
-        # Start python debugger
-        if get_file_extension(program) == ".py":
+            # index 0 of arguments would be the main class name (e.g., the actual java program for debugging)
+            program = arguments[0]
+
+            # source file
+            if get_file_extension(program) == ".java":
+                mainClass = program
+            else:
+                mainClass = f"{program}.java"
+
+            # the rest would be the arguments passed to the java program
+            arguments = arguments[1:]
+
+            # Launch java debug sessions, which would take longer to initialize than c/cpp and python
+            #
+            # Note:
+            # Java language server and debugger extension would be responsible for setting up a java project and compiling at runtime.
+            print(yellow("Starting Java debug session..."))
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_JAVA, mainClass, mainClass, arguments, java_debugging=True), timeout=30)
+
+        # Launch Python debug session (infer Python program from file extension)
+        elif get_file_extension(program) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
 
-        # Start c/cpp debugger
+        # Launch C/Cpp debug session (no file extensions, assume it is an c/cpp executable)
         else:
-            # Get the source file using DW_AT_name
             try:
+
+                # Get the source file name using DW_AT_name (usually would be ${executable}.c or ${executable}.cpp )
                 source = list(filter(lambda source_file: os.path.basename(program) in source_file, get_source_files(program)))[0]
             except:
                 file_not_supported(program)
@@ -107,12 +134,13 @@ async def launch(program, arguments):
         print(e)
 
 
-async def launch_debugger(config_name, source, executable, arguments, source_files=None):
+async def launch_debugger(config_name, source, executable, arguments, source_files=None, java_debugging=False):
     websocket = await websockets.connect(SOCKET_URI)
     customDebugConfiguration = {
         "path": os.path.abspath(source),
         "launch_config": get_config(config_name, executable, arguments),
-        "source_files": source_files
+        "source_files": source_files,
+        "java_debugging": java_debugging
     }
     payload = {
         "command": "start_debugger",
@@ -141,7 +169,13 @@ async def monitor():
 
 def get_config(config_name, program, arguments):
     for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
-        each["program"] = f"{os.getcwd()}/{program}"
+
+        if (each["name"] == LAUNCH_CONFIG_JAVA):
+            mainClass = program
+            each["mainClass"] = f"{os.getcwd()}/{mainClass}"
+        else:
+            each["program"] = f"{os.getcwd()}/{program}"
+
         if arguments is not None:
             each["args"] = arguments
 
@@ -171,7 +205,7 @@ def verify_executable(source, executable):
 
 
 def file_not_supported(filename):
-    message = f"Can't debug this program! Are you sure you're running debug50 on an executable or a Python script?\nUnsupported File: {filename}"
+    message = f"Can't debug this program! Are you sure you're running debug50 on an executable, a Python script, or a Java program?\nUnsupported File: {filename}"
     print(yellow(message))
     sys.exit(1)
 

@@ -10,6 +10,16 @@ function launchDebugger(workspace_folder, config, ws: ws) {
     // Get all breakpoints
     const breakpoints = vscode.debug.breakpoints;
 
+    // If Java debugging, skip checking breakpoints
+    if (config.java_debugging) {
+        const debugConfiguration: vscode.DebugConfiguration = config.launch_config;
+        vscode.debug.startDebugging(workspace_folder, debugConfiguration);
+        setTimeout(() => {
+            vscode.commands.executeCommand('workbench.action.terminal.focus');
+        }, 10000);
+        return;
+    }
+
     let source_files;
     config.source_files == null ? source_files = [] : source_files = config.source_files;
 
