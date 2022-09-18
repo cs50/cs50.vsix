@@ -20,8 +20,9 @@ from debug50.colors import red, yellow
 DEFAULT_PORT = os.getenv("CS50_EXTENSION_PORT", 1337)
 SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 DEBUGGER_TIMEOUT = 10
-LAUNCH_CONFIG_C = "c"
-LAUNCH_CONFIG_PYTHON = "python"
+LAUNCH_CONFIG_C = "C"
+LAUNCH_CONFIG_PYTHON = "Python"
+LAUNCH_CONFIG_JAVA = "Java"
 LAUNCH_CONFIG = {
     "version": "0.2.0",
     "configurations": [
@@ -61,6 +62,12 @@ LAUNCH_CONFIG = {
             "args": [],
             "cwd": f"{os.getcwd()}",
             "console": "integratedTerminal"
+        },
+        {
+            "name": LAUNCH_CONFIG_JAVA,
+            "type": "java",
+            "request": "launch",
+            "mainClass": "${file}"
         }
     ]
 }
@@ -82,6 +89,10 @@ async def launch(program, arguments):
         # Start python debugger
         if get_file_extension(program) == ".py":
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
+
+        # Start java debugger
+        elif get_file_extension(program) == ".java":
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_JAVA, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
 
         # Start c/cpp debugger
         else:
@@ -141,7 +152,12 @@ async def monitor():
 
 def get_config(config_name, program, arguments):
     for each in filter(lambda x: x["name"]==config_name, LAUNCH_CONFIG["configurations"]):
-        each["program"] = f"{os.getcwd()}/{program}"
+
+        if (each["name"] == LAUNCH_CONFIG_JAVA):
+            each["mainClass"] = f"{os.getcwd()}/{program}"
+        else:
+            each["program"] = f"{os.getcwd()}/{program}"
+
         if arguments is not None:
             each["args"] = arguments
 
