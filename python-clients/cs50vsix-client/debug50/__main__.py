@@ -106,8 +106,10 @@ async def launch(program, arguments):
             await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_JAVA, mainClass, mainClass, arguments, java_debugging=True), timeout=30)
 
         # Launch Python debug session (infer Python program from file extension)
-        elif get_file_extension(program) == ".py":
-            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, program, program, arguments), timeout=DEBUGGER_TIMEOUT)
+        elif program == "python" or program == "python3":
+            python_script = arguments[0]
+            arguments = arguments[1:]
+            await asyncio.wait_for(launch_debugger(LAUNCH_CONFIG_PYTHON, python_script, python_script, arguments), timeout=DEBUGGER_TIMEOUT)
 
         # Launch C/Cpp debug session (no file extensions, assume it is an c/cpp executable)
         else:
