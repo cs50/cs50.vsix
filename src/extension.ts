@@ -40,6 +40,18 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
             ws.addEventListener('message', (event) => {
                 const data: payload = JSON.parse(event.data as string);
 
+                // Open lab
+                if (data.command == 'open_lab') {
+                    const currentFolderPath = data.payload["fileUri"];
+                    try {
+                        const labExtension = vscode.extensions.getExtension('cs50.lab50');
+                        const api = labExtension.exports;
+                        api.openLab(currentFolderPath);
+                    } catch (error) {
+                        console.log(error);
+                    }
+                }
+
                 // Launch debugger
                 if (data.command === 'start_debugger') {
                     launchDebugger(WORKSPACE_FOLDER, data.payload, ws);
