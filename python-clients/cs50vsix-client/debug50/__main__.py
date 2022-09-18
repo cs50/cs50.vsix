@@ -11,6 +11,7 @@ import json
 import os
 import pathlib
 import subprocess
+import textwrap
 import websockets
 
 from debug50.colors import red, yellow
@@ -244,9 +245,17 @@ def failed_to_connect_debug_service(port):
 
 
 def parse_args(args):
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(formatter_class=argparse.RawTextHelpFormatter)
+
+    help_message = """
+    C: debug50 HelloWorld\n
+    Java: debug50 java HelloWorld\n
+    Python: debug50 python HelloWorld.py
+    """
+
     parser.add_argument(
-        "PROGRAM"
+        "PROGRAM",
+        help=textwrap.dedent(help_message)
     )
     return parser.parse_known_args(args)
 
