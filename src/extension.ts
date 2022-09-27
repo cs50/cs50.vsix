@@ -120,12 +120,16 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
 
     vscode.debug.onDidTerminateDebugSession(() => {
 
-        // Close terminal after debug session ended
-        // https://github.com/microsoft/vscode/issues/63813
-        for (const terminal of vscode.window.terminals) {
-            const terminal_name = terminal.name.toLowerCase();
-            if (terminal_name.includes('debug') || terminal_name.includes('cppdbg')) {
-                terminal.dispose();
+        const disposeDebugTerminals = vscode.workspace.getConfiguration("debug50").get("disposeDebugTerminals");
+        if (disposeDebugTerminals) {
+
+            // Close terminal after debug session ended
+            // https://github.com/microsoft/vscode/issues/63813
+            for (const terminal of vscode.window.terminals) {
+                const terminal_name = terminal.name.toLowerCase();
+                if (terminal_name.includes('debug') || terminal_name.includes('cppdbg')) {
+                    terminal.dispose();
+                }
             }
         }
 
@@ -196,6 +200,15 @@ export function activate(context: vscode.ExtensionContext) {
     // Check for updates
     detectInsiderVersion();
     checkForUpdates();
+}
+
+function getWorkspaceConfig(config: string) {
+    try {
+        return JSON.parse(JSON.stringify(vscode.workspace.getConfiguration(config, null)));
+    } catch (e) {
+        console.log(e);
+        return undefined;
+    }
 }
 
 export function deactivate() {

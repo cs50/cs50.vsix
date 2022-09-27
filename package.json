@@ -24,6 +24,18 @@
                 "icon": "$(home)"
             }
         ],
+        "configuration": [
+            {
+                "title": "Dispose Debug Terminals",
+                "properties": {
+                    "debug50.disposeDebugTerminals": {
+                        "type": "boolean",
+                        "description": "Dispose debug terminal when debug session ends.",
+                        "default": true
+                    }
+                }
+            }
+        ],
         "keybindings": [
             {
                 "key": "ctrl+`",
