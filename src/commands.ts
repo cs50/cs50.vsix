@@ -33,10 +33,9 @@ export function registerCommand(context: vscode.ExtensionContext) {
     // Command: Reset Terminal
     command = 'cs50.resetTerminal';
     commandHandler = async () => {
-        // Force create terminal with login profile
-        for (let i = 0; i < vscode.window.terminals.length; i++) {
-            vscode.window.terminals[i].dispose();
-        }
+        vscode.window.terminals.forEach((terminal) => {
+            terminal.dispose();
+        });
         vscode.window.createTerminal('bash', 'bash', ['--login']).show();
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
@@ -54,6 +53,25 @@ export function registerCommand(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage(message);
             }
         }
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
+    // Command: Reset UI
+    command = 'cs50.resetUI';
+    commandHandler = async () => {
+        await vscode.commands.executeCommand("workbench.action.focusSideBar");
+        await vscode.commands.executeCommand("workbench.action.focusActivityBar");
+        await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
+        await vscode.commands.executeCommand("workbench.files.action.collapseExplorerFolders");
+        await vscode.commands.executeCommand("workbench.action.closeAllEditors");
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
+    // Command: Return to workspace home
+    command = 'cs50.resetLayout';
+    commandHandler = async () => {
+        await vscode.commands.executeCommand("cs50.resetUI");
+        await vscode.commands.executeCommand("cs50.resetTerminal");
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 }

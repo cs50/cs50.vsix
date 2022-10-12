@@ -22,6 +22,10 @@
                 "command": "cs50.returnHome",
                 "title": "Go to Home Folder",
                 "icon": "$(home)"
+            },
+            {
+                "command": "cs50.resetLayout",
+                "title": "Reset Layout"
             }
         ],
         "configuration": [
