@@ -5,9 +5,7 @@ import { exec } from 'child_process';
 const LOCAL_HOST = '127.0.0.1';
 const NOVNC_PORT = 6081;
 const VNC_SERVER_PORT = 5900;
-const VNC_PASSWORD = Math.random().toString(36).slice(-8);
-const VNC_HOST = `${process.env.CODESPACE_NAME}-${NOVNC_PORT}.githubpreview.dev`;
-const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true&host=${VNC_HOST}&port=443&password=${VNC_PASSWORD}`;
+const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true`;
 
 export async function startVNC() {
 
@@ -15,7 +13,7 @@ export async function startVNC() {
     vscode.window.showInformationMessage('Starting noVNC session...');
 
     console.log('Starting VNC server...');
-    exec(`x11vnc -cursor arrow -display $DISPLAY -forever -loop -noxfixes -noxrecord -noxdamage -passwd ${VNC_PASSWORD} -xkb -shared &>> /tmp/x11vnc.log &`, {
+    exec(`x11vnc -cursor arrow -display $DISPLAY -forever -loop -noxfixes -noxrecord -noxdamage -xkb -shared &>> /tmp/x11vnc.log &`, {
         'env': process.env
     }, (error, stdout, stderr) => {
         console.log(error, stdout, stderr);
