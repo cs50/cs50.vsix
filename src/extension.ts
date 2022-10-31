@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import * as tcpPorts from 'tcp-port-used';
 import WebSocket = require('ws');
-import { clean_up } from './cleanup';
+import { post_launch_tasks } from './post_launch_tasks';
 import { launchDebugger } from './debug';
 import { checkForUpdates, detectInsiderVersion } from './updates';
 import * as vnc from './vnc';
@@ -195,7 +195,7 @@ export function activate(context: vscode.ExtensionContext) {
     openPreviewLinkAsLocalhostUrl();
 
     // Perform clean-up
-    clean_up();
+    post_launch_tasks();
 
     // Check for updates
     detectInsiderVersion();
