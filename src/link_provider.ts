@@ -1,5 +1,5 @@
-import { exec } from 'child_process';
 import * as vscode from 'vscode';
+import { exec } from 'child_process';
 
 const LOCAL_HOST = 'http://127.0.0.1';
 
@@ -24,20 +24,16 @@ function openPreviewLinkAsLocalhostUrl() {
                 const port = (context.line as string).substring(startIndex + protocol.length + codespaceName.length + 1, endIndex - githubPreviewDomain.length - 1);
 
                 if (startIndex > -1) {
-
-                    // GitHub Preview link
-                    const previewURL = `${protocol}${codespaceName}-${port}.${githubPreviewDomain}`;
-
                     exec("pgrep flask || pgrep http-server", (error, stdout, stderr) => {
                         if (error === null) {
+                            const previewURL = `${protocol}${codespaceName}-${port}.${githubPreviewDomain}`;
                             const message = `GitHub Preview URL: ${previewURL}`;
-                            if (Date.now() - lastOpened > 10000) {
+                            if (Date.now() - lastOpened > 5000) {
                                 vscode.window.showInformationMessage(
                                     message, ...['Open URL', 'Cancel']).then((selection) => {
                                     if (selection === 'Open URL') {
                                         vscode.env.openExternal(vscode.Uri.parse(`${LOCAL_HOST}:${port}`));
-                                    }
-                                    if (selection === 'Cancel') {
+                                    } else if (selection === 'Cancel') {
                                         lastOpened = -1;
                                     }
                                 });
