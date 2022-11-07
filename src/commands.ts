@@ -22,6 +22,23 @@ export function registerCommand(context: vscode.ExtensionContext) {
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
+    // Command: Sync Changes
+    command = "cs50.syncChanges";
+    commandHandler = () => {
+        exec('cd /workspaces/$RepositoryName && git add . && git commit -m "commit changes" && git push --force', {
+            'env': process.env
+        }, (error, stdout, stderr) => {
+            console.log(error, stdout, stderr);
+            if (error !== null) {
+                vscode.window.showErrorMessage(`${stdout}`);
+            }
+            else {
+                vscode.window.showInformationMessage(`Successfully synced changes to backing repository. ${stdout}`);
+            }
+        });
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
     // Command: Cleanup Workspace Repository
     command = 'cs50.cleanupRepository';
     commandHandler = () => {
