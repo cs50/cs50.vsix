@@ -3,6 +3,8 @@ import * as vscode from 'vscode';
 
 const LOCAL_HOST = 'http://127.0.0.1';
 
+let lastOpened = -1;
+
 function openPreviewLinkAsLocalhostUrl() {
 
     // https://code.visualstudio.com/updates/v1_49#_terminal-link-providers
@@ -29,12 +31,18 @@ function openPreviewLinkAsLocalhostUrl() {
                     exec("pgrep flask || pgrep http-server", (error, stdout, stderr) => {
                         if (error === null) {
                             const message = `GitHub Preview URL: ${previewURL}`;
-                            vscode.window.showInformationMessage(
-                                message, ...['Open URL', 'Cancel']).then((selection) => {
-                                if (selection === 'Open URL') {
-                                    vscode.env.openExternal(vscode.Uri.parse(`${LOCAL_HOST}:${port}`));
-                                }
-                            });
+                            if (Date.now() - lastOpened > 10000) {
+                                vscode.window.showInformationMessage(
+                                    message, ...['Open URL', 'Cancel']).then((selection) => {
+                                    if (selection === 'Open URL') {
+                                        vscode.env.openExternal(vscode.Uri.parse(`${LOCAL_HOST}:${port}`));
+                                    }
+                                    if (selection === 'Cancel') {
+                                        lastOpened = -1;
+                                    }
+                                });
+                                lastOpened = Date.now();
+                            }
                         }
                     });
 
