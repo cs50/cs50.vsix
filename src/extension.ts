@@ -64,7 +64,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
 
                 // Execute commands
                 if (data.command === 'execute_command') {
-                    const command = JSON.stringify(data.payload['command']).replace(/['']+/g, '');
+                    const command = JSON.stringify(data.payload['command']).replaceAll('"', '');
                     const args = data.payload['args'];
                     vscode.commands.executeCommand(command, args);
                 }

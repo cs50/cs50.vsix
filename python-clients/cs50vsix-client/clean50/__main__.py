@@ -9,6 +9,7 @@ import argparse
 import os
 import subprocess
 import termcolor
+import time
 
 BFG_VERSION = "1.14.0"
 BFG = f"bfg-{BFG_VERSION}.jar"
@@ -25,7 +26,7 @@ def main():
     if not os.path.isfile("./.git/index"):
         sys.exit(red("Not a valid git repository, operation aborted."))
 
-    confirmation = input(red("WARNING!! Please make sure you have a backup of your important files and proceed with caution.\nContinue? (y/n): "))
+    confirmation = input(red("WARNING!! Please make sure you have a backup of your important files and proceed with caution.\nYour Codespace will restart automatically.\nContinue? (y/n): "))
     if not confirmation.strip().lower() in ("yes", "y"):
         sys.exit(red("Operation aborted."))
 
@@ -59,8 +60,12 @@ def main():
             "mv -f /tmp/.gitignore .gitignore"
         ])
         subprocess.run(commands, check=True, shell=True, stdout=stdout, stderr=stderr)
-
         print(green("Successfully cleaned up repository."))
+
+        # Reload Codespace
+        print(yellow("Reloading Codespace in 5 seconds..."))
+        time.sleep(5)
+        subprocess.run("command50 workbench.action.reloadWindow", check=True, shell=True, stdout=stdout, stderr=stderr)
 
     except subprocess.CalledProcessError as e:
         print(red("Something's wrong, clean50 ran into an error."))
