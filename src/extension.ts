@@ -157,13 +157,6 @@ export function activate(context: vscode.ExtensionContext) {
     // Register Commands
     registerCommand(context);
 
-    // Set CS50_GH_USER environment variable for submit50
-    const evc = context.environmentVariableCollection;
-    if (evc.get('CS50_GH_USER') == undefined) {
-        evc.append('CS50_GH_USER', process.env.GITHUB_USER);
-    }
-    evc.replace('CS50_GH_USER', process.env.GITHUB_USER);
-
     // Start WebSocket server
     startWebsocketServer(DEFAULT_PORT, context);
 
