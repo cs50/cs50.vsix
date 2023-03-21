@@ -39,15 +39,19 @@ function checkCS50TokenExpiry() {
             const cs50Token = response.data['secrets'].filter((secret: any) => {
                 return secret['name'] === 'CS50_TOKEN';
             });
+
+            // If no CS50_TOKEN, prompt user to login again
+            if (cs50Token.length === 0) {
+                promptRelogin();
+                return;
+            }
+
+            // If CS50_TOKEN is older than 24 hours, prompt user to login again
             const updatedDate = new Date(cs50Token[0]['updated_at']).getTime();
             const diff = new Date().getTime() - updatedDate;
             const diffInHours = diff / (1000 * 3600);
             if (diffInHours > 24) {
-                const message = 'Please visit https://code.cs50.io/ and log in again.';
-                vscode.window.showErrorMessage(
-                    message, ...['OK']).then(() => {
-                        vscode.env.openExternal(vscode.Uri.parse('https://code.cs50.io'));
-                });
+                promptRelogin();
             }
         }).catch((error) => {
             console.log(error);
@@ -55,6 +59,14 @@ function checkCS50TokenExpiry() {
     } catch (error) {
         console.log(error);
     }
+}
+
+function promptRelogin() {
+    const message = 'Please visit https://code.cs50.io/ and log in again.';
+    vscode.window.showErrorMessage(
+        message, ...['OK']).then(() => {
+            vscode.env.openExternal(vscode.Uri.parse('https://code.cs50.io'));
+    });
 }
 
 function promptUpdate() {
