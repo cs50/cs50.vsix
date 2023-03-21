@@ -3,7 +3,7 @@ import * as tcpPorts from 'tcp-port-used';
 import WebSocket = require('ws');
 import { post_launch_tasks } from './post_launch_tasks';
 import { launchDebugger } from './debug';
-import { checkForUpdates, detectInsiderVersion } from './updates';
+import { checkForUpdates, checkCS50TokenExpiry, detectInsiderVersion } from './updates';
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
@@ -192,6 +192,7 @@ export function activate(context: vscode.ExtensionContext) {
     // Check for updates
     detectInsiderVersion();
     checkForUpdates();
+    checkCS50TokenExpiry();
 }
 
 function getWorkspaceConfig(config: string) {

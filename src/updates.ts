@@ -5,22 +5,56 @@ import { exec } from 'child_process';
 const axios = require('axios').default;
 
 function checkForUpdates() {
-    exec(`tail -1 /etc/issue`, (error, stdout, stderr) => {
-        const currentVersion = stdout.trim();
-        const url = 'https://api.github.com/repos/cs50/codespace/git/matching-refs/tags/latest';
+    try {
+        exec(`tail -1 /etc/issue`, (error, stdout, stderr) => {
+            const currentVersion = stdout.trim();
+            const url = 'https://api.github.com/repos/cs50/codespace/git/matching-refs/tags/latest';
+            const headers = {
+                'Authorization': `token ${process.env['GITHUB_TOKEN']}`,
+                'Accept': 'application/vnd.github.v3+json'
+            };
+            axios.get(url, {headers: headers}).then((response) => {
+                const latestVersion = response.data[0]['object']['sha'].trim();
+                if (currentVersion != latestVersion) {
+                    promptUpdate();
+                }
+            }).catch((error) => {
+                console.log(error);
+            });
+        });
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+function checkCS50TokenExpiry() {
+    try {
+        const url = 'https://api.github.com/user/codespaces/secrets';
         const headers = {
-            'Authorization': `token ${process.env['GITHUB_TOKEN']}`,
-            'Accept': 'application/vnd.github.v3+json'
+            'Accept': 'application/vnd.github+jso',
+            'Authorization': `Bearer ${process.env['CS50_TOKEN']}`,
+            'X-GitHub-Api-Version': '2022-11-28'
         };
         axios.get(url, {headers: headers}).then((response) => {
-            const latestVersion = response.data[0]['object']['sha'].trim();
-            if (currentVersion != latestVersion) {
-                promptUpdate();
+            const cs50Token = response.data['secrets'].filter((secret: any) => {
+                return secret['name'] === 'CS50_TOKEN';
+            });
+            const updatedDate = new Date(cs50Token[0]['updated_at']).getTime();
+            const diff = new Date().getTime() - updatedDate;
+            const diffInHours = diff / (1000 * 3600);
+            if (diffInHours > 24) {
+                const message = 'Please visit https://code.cs50.io/ and log in again.';
+                vscode.window.showErrorMessage(
+                    message, ...['OK']).then(() => {
+                        vscode.env.openExternal(vscode.Uri.parse('https://code.cs50.io'));
+                });
             }
         }).catch((error) => {
             console.log(error);
         });
-    });
+    } catch (error) {
+        console.log(error);
+    }
 }
 
 function promptUpdate() {
@@ -46,4 +80,4 @@ function detectInsiderVersion() {
     }
 }
 
-export { checkForUpdates, detectInsiderVersion };
+export { checkForUpdates, checkCS50TokenExpiry, detectInsiderVersion };
