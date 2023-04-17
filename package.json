@@ -40,6 +40,18 @@
                 }
             }
         ],
+        "customEditors": [
+            {
+                "viewType": "cs50.vsixEditor",
+                "displayName": "CS50 VSIX Editor",
+                "selector": [
+                    {
+                        "filenamePattern": "*.db"
+                    }
+                ],
+                "priority": "option"
+            }
+        ],
         "keybindings": [
             {
                 "key": "ctrl+`",

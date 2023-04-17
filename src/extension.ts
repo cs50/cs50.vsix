@@ -7,6 +7,7 @@ import { checkForUpdates, checkCS50TokenExpiry, detectInsiderVersion } from './u
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
+import { SimpleTextEditor } from './editor';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -193,6 +194,8 @@ export function activate(context: vscode.ExtensionContext) {
     detectInsiderVersion();
     checkForUpdates();
     checkCS50TokenExpiry();
+
+    context.subscriptions.push(SimpleTextEditor.register(context));
 }
 
 function getWorkspaceConfig(config: string) {
