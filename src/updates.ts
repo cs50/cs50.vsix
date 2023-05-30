@@ -62,10 +62,10 @@ function checkCS50TokenExpiry() {
 }
 
 function promptRelogin() {
-    const message = 'Please visit https://code.cs50.io/ and log in again.';
+    const message = 'Please visit https://cs50.dev and log in again.';
     vscode.window.showErrorMessage(
         message, ...['OK']).then(() => {
-            vscode.env.openExternal(vscode.Uri.parse('https://code.cs50.io'));
+            vscode.env.openExternal(vscode.Uri.parse('https://cs50.dev'));
     });
 }
 
