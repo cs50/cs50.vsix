@@ -131,6 +131,7 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
                     terminal.dispose();
                 }
             }
+            vscode.commands.executeCommand('workbench.explorer.fileView.focus');
         }
 
         // If a user is in a lab session, focus on lab view
