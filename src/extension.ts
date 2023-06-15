@@ -28,9 +28,14 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
             isInUse = await tcpPorts.check(port);
         }
         wss = new WebSocket.Server({ port });
+
+        // check if we need to update CS50_EXTENSION_PORT environment variable
         const evc = context.environmentVariableCollection;
-        evc.replace('CS50_EXTENSION_PORT', `${port}`);
-        vscode.commands.executeCommand('cs50.resetTerminal');
+        const cs50ExtensionPort = evc.get('CS50_EXTENSION_PORT');
+        if ((cs50ExtensionPort && cs50ExtensionPort.value !== `${port}`) || !cs50ExtensionPort) {
+            evc.replace('CS50_EXTENSION_PORT', `${port}`);
+            vscode.commands.executeCommand('cs50.resetTerminal');
+        }
     } catch (error) {
         console.log(error);
     }
