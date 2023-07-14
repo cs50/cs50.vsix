@@ -14,7 +14,7 @@ function openPreviewLinkAsLocalhostUrl() {
                 // Detect the GitHub preview link if it exists and linkify it
                 const protocol = 'https://';
                 const codespaceName = process.env.CODESPACE_NAME;
-                const githubPreviewDomain = 'preview.app.github.dev';
+                const githubPreviewDomain = process.env['GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN'] || 'preview.app.github.dev';
                 const startIndex = (context.line as string).indexOf(codespaceName) - protocol.length;
                 const endIndex = (context.line as string).indexOf(githubPreviewDomain) + githubPreviewDomain.length;
 
