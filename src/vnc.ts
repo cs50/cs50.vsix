@@ -2,10 +2,9 @@ import * as vscode from 'vscode';
 import * as tcpPorts from 'tcp-port-used';
 import { exec } from 'child_process';
 
-const LOCAL_HOST = '127.0.0.1';
 const NOVNC_PORT = 6081;
 const VNC_SERVER_PORT = 5900;
-const VNC_URL = `http://${LOCAL_HOST}:${NOVNC_PORT}/vnc.html?autoconnect=true`;
+const VNC_URL = `https://${process.env['CODESPACE_NAME']}-${NOVNC_PORT}.${process.env['GITHUB_CODESPACES_PORT_FORWARDING_DOMAIN']}/vnc.html?autoconnect=true`;
 
 export async function startVNC() {
 
