@@ -82,19 +82,19 @@
         "watch": "tsc -watch -p ./"
     },
     "devDependencies": {
-        "@types/node": "^20.4.9",
+        "@types/node": "^20.5.7",
         "@types/tcp-port-used": "^1.0.1",
         "@types/vscode": "^1.81.0",
         "@types/ws": "^8.5.5",
-        "@typescript-eslint/eslint-plugin": "^6.3.0",
-        "@typescript-eslint/parser": "^6.3.0",
-        "@vscode/vsce": "^2.20.1",
-        "eslint": "^8.46.0",
-        "typescript": "^5.1.6"
+        "@typescript-eslint/eslint-plugin": "^6.5.0",
+        "@typescript-eslint/parser": "^6.5.0",
+        "@vscode/vsce": "^2.21.0",
+        "eslint": "^8.48.0",
+        "typescript": "^5.2.2"
     },
     "dependencies": {
-        "@types/react": "^18.2.20",
-        "axios": "^1.4.0",
+        "@types/react": "^18.2.21",
+        "axios": "^1.5.0",
         "tcp-port-used": "^1.0.2",
         "ws": "^8.13.0"
     }
