@@ -84,7 +84,7 @@ export function shutdown() {
 
 export function createVirtualDisplay() {
     try {
-        exec(`Xvfb $DISPLAY -screen 0 1280x720x16 -br &>> /tmp/xvfb.log &`, {
+        exec(`Xvfb $DISPLAY -screen 0 1280x720x24 -br &>> /tmp/xvfb.log &`, {
             'env': process.env
         });
     } catch (error) {
