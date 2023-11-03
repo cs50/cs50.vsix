@@ -172,9 +172,9 @@ export function activate(context: vscode.ExtensionContext) {
     // Tidy UI
     vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
     const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    if (!workbenchConfig['activityBar']['visible']) {
-        vscode.commands.executeCommand('workbench.action.toggleActivityBarVisibility');
-    }
+    // if (!workbenchConfig['activityBar']['visible']) {
+    //     vscode.commands.executeCommand('workbench.action.toggleActivityBarVisibility');
+    // }
     if (workbenchConfig['statusBar']['visible']) {
         vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
     }
