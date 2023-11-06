@@ -170,16 +170,19 @@ export async function activate(context: vscode.ExtensionContext) {
     vnc.createVirtualDisplay();
 
     // Tidy UI
-    // setTimeout(async () => {
-    //     const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    //     if (!workbenchConfig['activityBar']['visible']) {
-    //         await vscode.commands.executeCommand('workbench.action.workbench.action.focusActivityBar');
-    //     }
-    //     if (workbenchConfig['statusBar']['visible']) {
-    //         await vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
-    //     }
-    //     await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
-    // }, 10000);
+    setTimeout(async () => {
+        const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+        if (!workbenchConfig['activityBar']['visible']) {
+            await vscode.commands.executeCommand('workbench.action.workbench.action.focusActivityBar');
+        }
+        if (workbenchConfig['statusBar']['visible']) {
+            await vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
+        }
+        await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
+
+        // Force-focus activityBar (TODO: remove in the future)
+        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
+    }, 10000);
 
     // Create a terminal if no active terminal
     if (vscode.window.terminals.length != 0) {
