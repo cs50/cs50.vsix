@@ -158,7 +158,7 @@ const stopWebsocketServer = async (): Promise < void > => {
     wss?.close();
 };
 
-export function activate(context: vscode.ExtensionContext) {
+export async function activate(context: vscode.ExtensionContext) {
 
     // Register Commands
     registerCommand(context);
@@ -170,14 +170,14 @@ export function activate(context: vscode.ExtensionContext) {
     vnc.createVirtualDisplay();
 
     // Tidy UI
-    vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
     const workbenchConfig = vscode.workspace.getConfiguration('workbench');
     if (!workbenchConfig['activityBar']['visible']) {
-        vscode.commands.executeCommand('workbench.action.toggleActivityBarVisibility');
+        await vscode.commands.executeCommand('workbench.action.toggleActivityBarVisibility');
     }
     if (workbenchConfig['statusBar']['visible']) {
-        vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
+        await vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
     }
+    await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
 
     // Create a terminal if no active terminal
     if (vscode.window.terminals.length != 0) {
