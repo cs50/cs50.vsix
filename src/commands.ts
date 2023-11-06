@@ -77,11 +77,11 @@ export function registerCommand(context: vscode.ExtensionContext) {
     command = 'cs50.resetUI';
     commandHandler = async () => {
         await vscode.commands.executeCommand("workbench.action.focusSideBar");
-        await vscode.commands.executeCommand("workbench.action.focusActivityBar");
         await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
         await vscode.commands.executeCommand("workbench.files.action.collapseExplorerFolders");
         await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-    }
+        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Return to workspace home
