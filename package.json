@@ -26,6 +26,10 @@
             {
                 "command": "cs50.resetLayout",
                 "title": "Reset Layout"
+            },
+            {
+                "command": "cs50.resetTerminal",
+                "title": "Reset Terminal"
             }
         ],
         "configuration": [
