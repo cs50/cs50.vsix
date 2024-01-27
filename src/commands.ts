@@ -47,6 +47,17 @@ export function registerCommand(context: vscode.ExtensionContext) {
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
+    // Command: Open URL in Browser through argument
+    context.subscriptions.push(vscode.commands.registerCommand('cs50.openURL', async(args) => {
+        const message = `Open ${args[0]} in browser?`;
+        vscode.window.showInformationMessage(
+            message, ...['Open in Browser']).then((selection) => {
+            if (selection === 'Open in Browser') {
+                vscode.env.openExternal(vscode.Uri.parse(args[0]));
+            }
+        });
+    }));
+
     // Command: Reset Terminal
     command = 'cs50.resetTerminal';
     commandHandler = async () => {
