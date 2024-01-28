@@ -14,6 +14,7 @@ const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
 let ws: WebSocket | null = null;
 let wss: WebSocket.Server | null = null;
+let intervalIds = [];
 
 interface payload {
     'command': string,
@@ -204,9 +205,9 @@ export async function activate(context: vscode.ExtensionContext) {
     checkForUpdates();
     checkCS50TokenExpiry();
 
-    // Check if ports are in use
+    // Watch ports
     const inUsePorts = new Set([]);
-    setInterval(() => {
+    intervalIds.push(setInterval(() => {
         try {
             (new Set(vscode.workspace.getConfiguration('cs50', null)?.watchPorts || [])).forEach(async (port: number) => {
                 const isInUse = await tcpPorts.check(port);
@@ -229,10 +230,13 @@ export async function activate(context: vscode.ExtensionContext) {
         } catch (error) {
             console.log(error);
         }
-    }, 2000);
+    }, 2000));
 }
 
 export function deactivate() {
     stopWebsocketServer();
     vnc.shutdown();
+    intervalIds.forEach((intervalId) => {
+        clearInterval(intervalId);
+    });
 }
