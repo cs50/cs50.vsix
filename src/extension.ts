@@ -7,6 +7,7 @@ import { checkForUpdates, checkCS50TokenExpiry, detectInsiderVersion } from './u
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
+import { exec } from 'child_process';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -202,15 +203,33 @@ export async function activate(context: vscode.ExtensionContext) {
     detectInsiderVersion();
     checkForUpdates();
     checkCS50TokenExpiry();
-}
 
-function getWorkspaceConfig(config: string) {
-    try {
-        return JSON.parse(JSON.stringify(vscode.workspace.getConfiguration(config, null)));
-    } catch (e) {
-        console.log(e);
-        return undefined;
-    }
+    // Check if ports are in use
+    const inUsePorts = new Set([]);
+    setInterval(() => {
+        try {
+            (new Set(vscode.workspace.getConfiguration('cs50', null)?.watchPorts || [])).forEach(async (port: number) => {
+                const isInUse = await tcpPorts.check(port);
+                if (isInUse) {
+                    if (!inUsePorts.has(port)) {
+                        inUsePorts.add(port);
+                        const message = `Your application running on port ${port} is available.`;
+                        vscode.window.showInformationMessage(
+                            message, ...['Open in Browser']).then((selection) => {
+                            if (selection === 'Open in Browser') {
+                                vscode.env.openExternal(vscode.Uri.parse(`http://127.0.0.1:${port}`));
+                            }
+                        });
+                    }
+                }
+                else {
+                    inUsePorts.has(port) ? inUsePorts.delete(port) : null;
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }, 2000);
 }
 
 export function deactivate() {

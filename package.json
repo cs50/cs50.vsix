@@ -42,6 +42,16 @@
                         "default": true
                     }
                 }
+            },
+            {
+                "title": "Watch Ports",
+                "properties": {
+                    "cs50.watchPorts": {
+                        "type": "array",
+                        "description": "Ports to watch for.",
+                        "default": []
+                    }
+                }
             }
         ],
         "keybindings": [
