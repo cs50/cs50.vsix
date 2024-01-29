@@ -14,7 +14,7 @@ const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
 
 let ws: WebSocket | null = null;
 let wss: WebSocket.Server | null = null;
-let intervalIds = [];
+const intervalIds = [];
 
 interface payload {
     'command': string,

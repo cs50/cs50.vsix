@@ -5,13 +5,9 @@ import sys
 
 signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(1))
 
-import argparse
 import asyncio
 import json
 import os
-import pathlib
-import subprocess
-import textwrap
 import websockets
 
 DEFAULT_PORT = 1337

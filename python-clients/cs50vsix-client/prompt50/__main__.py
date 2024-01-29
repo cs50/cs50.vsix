@@ -5,7 +5,6 @@ import asyncio
 import json
 import os
 import sys
-from typing import DefaultDict
 import websockets
 
 DEFAULT_PORT = 1337
