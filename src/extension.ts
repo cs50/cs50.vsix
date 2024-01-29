@@ -7,7 +7,7 @@ import { checkForUpdates, checkCS50TokenExpiry, detectInsiderVersion } from './u
 import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
-import { exec } from 'child_process';
+import * as fs from 'fs';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -31,12 +31,27 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         }
         wss = new WebSocket.Server({ port });
 
-        // check if we need to update CS50_EXTENSION_PORT environment variable
-        const evc = context.environmentVariableCollection;
-        const cs50ExtensionPort = evc.get('CS50_EXTENSION_PORT');
-        if ((cs50ExtensionPort && cs50ExtensionPort.value !== `${port}`) || !cs50ExtensionPort) {
-            evc.replace('CS50_EXTENSION_PORT', `${port}`);
-            vscode.commands.executeCommand('cs50.resetTerminal');
+        // Write port mapping to file using VSCODE_GIT_IPC_HANDLE as key because it is unique per vscode instance
+        // Since process.env.VSCODE_GIT_IPC_HANDLE is undefined, we use the last modified vscode-git* file from /tmp
+        // This is a hacky way to get the Git IPC handle, but it works
+        const gitIpcHandle = fs.readdirSync('/tmp').filter((file) => {
+            return file.includes('vscode-git') && file.includes('sock');
+        }).sort((a, b) => {
+            return fs.statSync(`/tmp/${a}`).mtime.getTime() -
+                fs.statSync(`/tmp/${b}`).mtime.getTime();
+        }).pop();
+        const portMappingFile = '/tmp/cs50_extension_port_mapping.json';
+        if (fs.existsSync(portMappingFile)) {
+            const portMapping = JSON.parse(fs.readFileSync(portMappingFile, 'utf8'));
+            if (!portMapping[gitIpcHandle]) {
+                console.log(`Writing port mapping to ${portMappingFile}`);
+                portMapping[gitIpcHandle] = port;
+                fs.writeFileSync(portMappingFile, JSON.stringify(portMapping, null, 2));
+            }
+        } else {
+            const portMapping = {};
+            portMapping[gitIpcHandle] = port;
+            fs.writeFileSync(portMappingFile, JSON.stringify(portMapping));
         }
     } catch (error) {
         console.log(error);
