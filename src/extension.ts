@@ -176,6 +176,23 @@ const stopWebsocketServer = async (): Promise < void > => {
     wss?.close();
 };
 
+function setTheme() {
+    switch (vscode.window.activeColorTheme?.kind) {
+        case 1:
+            fs.writeFileSync('/tmp/cs50_theme', 'light');
+            break;
+        case 2:
+            fs.writeFileSync('/tmp/cs50_theme', 'dark');
+            break;
+        case 3:
+            fs.writeFileSync('/tmp/cs50_theme', 'high_contrast');
+            break;
+        default:
+            fs.writeFileSync('/tmp/cs50_theme', 'light');
+            break;
+    }
+}
+
 export async function activate(context: vscode.ExtensionContext) {
 
     // Register Commands
@@ -247,6 +264,12 @@ export async function activate(context: vscode.ExtensionContext) {
             console.log(error);
         }
     }, 2000));
+
+    // Set theme
+    setTheme();
+    vscode.window.onDidChangeActiveColorTheme(() => {
+        setTheme();
+    });
 }
 
 export function deactivate() {
