@@ -5,16 +5,18 @@ import sys
 
 signal.signal(signal.SIGINT, lambda signum, frame: sys.exit(1))
 
-import argparse
 import asyncio
 import json
 import os
-import pathlib
-import subprocess
-import textwrap
 import websockets
 
-DEFAULT_PORT = os.getenv("CS50_EXTENSION_PORT", 1337)
+DEFAULT_PORT = 1337
+try:
+    with open("/tmp/cs50_extension_port_mapping.json", "r") as f:
+        data = json.load(f)
+        DEFAULT_PORT = data[os.getenv("VSCODE_GIT_IPC_HANDLE")]
+except Exception:
+    pass
 SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 
 async def open_lab():
