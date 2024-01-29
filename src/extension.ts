@@ -34,12 +34,13 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         // Write port mapping to file using VSCODE_GIT_IPC_HANDLE as key because it is unique per vscode instance
         // Since process.env.VSCODE_GIT_IPC_HANDLE is undefined, we use the last modified vscode-git* file from /tmp
         // This is a hacky way to get the Git IPC handle, but it works
-        const gitIpcHandle = fs.readdirSync('/tmp').filter((file) => {
+        let gitIpcHandle = fs.readdirSync('/tmp').filter((file) => {
             return file.includes('vscode-git') && file.includes('sock');
         }).sort((a, b) => {
             return fs.statSync(`/tmp/${a}`).mtime.getTime() -
                 fs.statSync(`/tmp/${b}`).mtime.getTime();
         }).pop();
+        gitIpcHandle = `/tmp/${gitIpcHandle}`;
         const portMappingFile = '/tmp/cs50_extension_port_mapping.json';
         if (fs.existsSync(portMappingFile)) {
             const portMapping = JSON.parse(fs.readFileSync(portMappingFile, 'utf8'));
