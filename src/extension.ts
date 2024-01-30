@@ -21,15 +21,20 @@ interface payload {
     // eslint-disable-next-line @typescript-eslint/ban-types
     'payload': Object
 }
-
-function updatePidPortMapping(pid: number, port: number) {
+function updatePidPortMapping(pid, port) {
     const mappingFilePath = '/tmp/cs50_pid_port_mapping.json';
     let mappingFileContent = {};
-    if (fs.existsSync(mappingFilePath)) {
-        mappingFileContent = JSON.parse(fs.readFileSync(mappingFilePath, 'utf8'));
+
+    try {
+        if (fs.existsSync(mappingFilePath)) {
+            const data = fs.readFileSync(mappingFilePath, 'utf8');
+            mappingFileContent = JSON.parse(data);
+        }
+        mappingFileContent[pid] = port;
+        fs.writeFileSync(mappingFilePath, JSON.stringify(mappingFileContent, null, 2));
+    } catch(err) {
+        console.error(`Error updating the PID port mapping: ${err}`);
     }
-    mappingFileContent[pid] = port;
-    fs.writeFileSync(mappingFilePath, JSON.stringify(mappingFileContent));
 }
 
 async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
