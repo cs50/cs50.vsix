@@ -22,22 +22,74 @@ interface payload {
     // eslint-disable-next-line @typescript-eslint/ban-types
     'payload': Object
 }
-function updatePidPortMapping(pid: number, port: number) {
-    let mappingFileContent = {};
-    try {
-        if (fs.existsSync(PID_PORT_MAPPING_FILE)) {
-            const data = fs.readFileSync(PID_PORT_MAPPING_FILE, 'utf8');
-            try {
-                mappingFileContent = JSON.parse(data);
-            } catch (err) {
-                console.error(`Error parsing the PID port mapping file: ${err}`);
-            }
-        }
-        mappingFileContent[pid] = port;
-        fs.writeFileSync(PID_PORT_MAPPING_FILE, JSON.stringify(mappingFileContent, null, 2));
-    } catch(err) {
-        console.error(`Error updating the PID port mapping: ${err}`);
+
+export async function activate(context: vscode.ExtensionContext) {
+
+    // Register Commands
+    registerCommand(context);
+
+    // Start WebSocket server
+    startWebsocketServer(DEFAULT_PORT, context);
+
+    // Create virtual display
+    vnc.createVirtualDisplay();
+
+    // Tidy UI
+    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
+    await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
+    if (workbenchConfig['statusBar']['visible']) {
+        await vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
     }
+    if (!workbenchConfig['activityBar']['visible']) {
+
+        // Use activityBar focus when fixed
+        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
+    }
+
+    // Parse GitHub preview links as localhost urls
+    openPreviewLinkAsLocalhostUrl();
+
+    // Perform clean-up
+    post_launch_tasks();
+
+    // Check for updates
+    detectInsiderVersion();
+    checkForUpdates();
+    checkCS50TokenExpiry();
+
+    // Watch ports
+    const inUsePorts = new Set([]);
+    intervalIds.push(setInterval(() => {
+        try {
+            (new Set(vscode.workspace.getConfiguration('cs50', null)?.watchPorts || []))
+            .forEach(async (port: number) => {
+                const isInUse = await tcpPorts.check(port);
+                if (isInUse) {
+                    if (!inUsePorts.has(port)) {
+                        inUsePorts.add(port);
+                        const message = `Your application running on port ${port} is available.`;
+                        vscode.window.showInformationMessage(
+                            message, ...['Open in Browser']).then((selection) => {
+                            if (selection === 'Open in Browser') {
+                                vscode.env.openExternal(vscode.Uri.parse(`http://127.0.0.1:${port}`));
+                            }
+                        });
+                    }
+                }
+                else {
+                    inUsePorts.has(port) ? inUsePorts.delete(port) : null;
+                }
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }, 2000));
+
+    // Set theme
+    setTheme();
+    vscode.window.onDidChangeActiveColorTheme(() => {
+        setTheme();
+    });
 }
 
 async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
@@ -184,10 +236,28 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
     });
 }
 
-const stopWebsocketServer = async (): Promise < void > => {
+async function stopWebsocketServer(): Promise<void> {
     ws?.close();
     wss?.close();
-};
+}
+
+function updatePidPortMapping(pid: number, port: number) {
+    let mappingFileContent = {};
+    try {
+        if (fs.existsSync(PID_PORT_MAPPING_FILE)) {
+            const data = fs.readFileSync(PID_PORT_MAPPING_FILE, 'utf8');
+            try {
+                mappingFileContent = JSON.parse(data);
+            } catch (err) {
+                console.error(`Error parsing the PID port mapping file: ${err}`);
+            }
+        }
+        mappingFileContent[pid] = port;
+        fs.writeFileSync(PID_PORT_MAPPING_FILE, JSON.stringify(mappingFileContent, null, 2));
+    } catch(err) {
+        console.error(`Error updating the PID port mapping: ${err}`);
+    }
+}
 
 function setTheme() {
     switch (vscode.window.activeColorTheme?.kind) {
@@ -206,78 +276,10 @@ function setTheme() {
     }
 }
 
-export async function activate(context: vscode.ExtensionContext) {
-
-    // Register Commands
-    registerCommand(context);
-
-    // Start WebSocket server
-    startWebsocketServer(DEFAULT_PORT, context);
-
-    // Create virtual display
-    vnc.createVirtualDisplay();
-
-    // Tidy UI
-    const workbenchConfig = vscode.workspace.getConfiguration('workbench');
-    await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
-    if (workbenchConfig['statusBar']['visible']) {
-        await vscode.commands.executeCommand('workbench.action.toggleStatusbarVisibility');
-    }
-    if (!workbenchConfig['activityBar']['visible']) {
-
-        // Use activityBar focus when fixed
-        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
-    }
-
-    // Parse GitHub preview links as localhost urls
-    openPreviewLinkAsLocalhostUrl();
-
-    // Perform clean-up
-    post_launch_tasks();
-
-    // Check for updates
-    detectInsiderVersion();
-    checkForUpdates();
-    checkCS50TokenExpiry();
-
-    // Watch ports
-    const inUsePorts = new Set([]);
-    intervalIds.push(setInterval(() => {
-        try {
-            (new Set(vscode.workspace.getConfiguration('cs50', null)?.watchPorts || [])).forEach(async (port: number) => {
-                const isInUse = await tcpPorts.check(port);
-                if (isInUse) {
-                    if (!inUsePorts.has(port)) {
-                        inUsePorts.add(port);
-                        const message = `Your application running on port ${port} is available.`;
-                        vscode.window.showInformationMessage(
-                            message, ...['Open in Browser']).then((selection) => {
-                            if (selection === 'Open in Browser') {
-                                vscode.env.openExternal(vscode.Uri.parse(`http://127.0.0.1:${port}`));
-                            }
-                        });
-                    }
-                }
-                else {
-                    inUsePorts.has(port) ? inUsePorts.delete(port) : null;
-                }
-            });
-        } catch (error) {
-            console.log(error);
-        }
-    }, 2000));
-
-    // Set theme
-    setTheme();
-    vscode.window.onDidChangeActiveColorTheme(() => {
-        setTheme();
-    });
-}
-
 export function deactivate() {
-    stopWebsocketServer();
-    vnc.shutdown();
     intervalIds.forEach((intervalId) => {
         clearInterval(intervalId);
     });
+    vnc.shutdown();
+    stopWebsocketServer();
 }
