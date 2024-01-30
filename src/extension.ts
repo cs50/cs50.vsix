@@ -22,6 +22,16 @@ interface payload {
     'payload': Object
 }
 
+function updatePidPortMapping(pid: number, port: number) {
+    const mappingFilePath = '/tmp/cs50_pid_port_mapping.json';
+    let mappingFileContent = {};
+    if (fs.existsSync(mappingFilePath)) {
+        mappingFileContent = JSON.parse(fs.readFileSync(mappingFilePath, 'utf8'));
+    }
+    mappingFileContent[pid] = port;
+    fs.writeFileSync(mappingFilePath, JSON.stringify(mappingFileContent));
+}
+
 async function startWebsocketServer(port: number, context: vscode.ExtensionContext): Promise < void > {
     try {
         let isInUse = await tcpPorts.check(port);
@@ -31,29 +41,28 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         }
         wss = new WebSocket.Server({ port });
 
-        // Write port mapping to file using VSCODE_GIT_IPC_HANDLE as key because it is unique per vscode instance
-        // Since process.env.VSCODE_GIT_IPC_HANDLE is undefined, we use the last modified vscode-git* file from /tmp
-        // This is a hacky way to get the Git IPC handle, but it works
-        let gitIpcHandle = fs.readdirSync('/tmp').filter((file) => {
-            return file.includes('vscode-git') && file.includes('sock');
-        }).sort((a, b) => {
-            return fs.statSync(`/tmp/${a}`).mtime.getTime() -
-                fs.statSync(`/tmp/${b}`).mtime.getTime();
-        }).pop();
-        gitIpcHandle = `/tmp/${gitIpcHandle}`;
-        const portMappingFile = '/tmp/cs50_extension_port_mapping.json';
-        if (fs.existsSync(portMappingFile)) {
-            const portMapping = JSON.parse(fs.readFileSync(portMappingFile, 'utf8'));
-            if (!portMapping[gitIpcHandle]) {
-                console.log(`Writing port mapping to ${portMappingFile}`);
-                portMapping[gitIpcHandle] = port;
-                fs.writeFileSync(portMappingFile, JSON.stringify(portMapping, null, 2));
+        // Create a terminal if no active terminal
+        if (vscode.window.terminals.length != 0) {
+            try {
+                vscode.window.activeTerminal.show();
+            } catch (e) {
+                console.log(e);
             }
         } else {
-            const portMapping = {};
-            portMapping[gitIpcHandle] = port;
-            fs.writeFileSync(portMappingFile, JSON.stringify(portMapping));
+            vscode.window.createTerminal('bash', 'bash', ['--login']).show();
         }
+
+        // Get active terminal PID
+        const activeTerminal = vscode.window.activeTerminal;
+
+        // Map terminal PID to port number
+        updatePidPortMapping(await activeTerminal.processId, port);
+        vscode.window.onDidChangeActiveTerminal((event) => {
+            event.processId.then((pid) => {
+                updatePidPortMapping(pid, port);
+            });
+        });
+
     } catch (error) {
         console.log(error);
     }
@@ -214,17 +223,6 @@ export async function activate(context: vscode.ExtensionContext) {
 
         // Use activityBar focus when fixed
         await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
-    }
-
-    // Create a terminal if no active terminal
-    if (vscode.window.terminals.length != 0) {
-        try {
-            vscode.window.activeTerminal.show();
-        } catch (e) {
-            console.log(e);
-        }
-    } else {
-        vscode.window.createTerminal('bash', 'bash', ['--login']).show();
     }
 
     // Parse GitHub preview links as localhost urls
