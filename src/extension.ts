@@ -11,6 +11,7 @@ import * as fs from 'fs';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
+const PID_PORT_MAPPING_FILE = '/tmp/cs50_pid_port_mapping.json';
 
 let ws: WebSocket | null = null;
 let wss: WebSocket.Server | null = null;
@@ -21,17 +22,19 @@ interface payload {
     // eslint-disable-next-line @typescript-eslint/ban-types
     'payload': Object
 }
-function updatePidPortMapping(pid, port) {
-    const mappingFilePath = '/tmp/cs50_pid_port_mapping.json';
+function updatePidPortMapping(pid: number, port: number) {
     let mappingFileContent = {};
-
     try {
-        if (fs.existsSync(mappingFilePath)) {
-            const data = fs.readFileSync(mappingFilePath, 'utf8');
-            mappingFileContent = JSON.parse(data);
+        if (fs.existsSync(PID_PORT_MAPPING_FILE)) {
+            const data = fs.readFileSync(PID_PORT_MAPPING_FILE, 'utf8');
+            try {
+                mappingFileContent = JSON.parse(data);
+            } catch (err) {
+                console.error(`Error parsing the PID port mapping file: ${err}`);
+            }
         }
         mappingFileContent[pid] = port;
-        fs.writeFileSync(mappingFilePath, JSON.stringify(mappingFileContent, null, 2));
+        fs.writeFileSync(PID_PORT_MAPPING_FILE, JSON.stringify(mappingFileContent, null, 2));
     } catch(err) {
         console.error(`Error updating the PID port mapping: ${err}`);
     }
@@ -46,26 +49,22 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
         }
         wss = new WebSocket.Server({ port });
 
-        // Create a terminal if no active terminal
-        if (vscode.window.terminals.length != 0) {
-            try {
-                vscode.window.activeTerminal.show();
-            } catch (e) {
-                console.log(e);
-            }
-        } else {
+        // Create a new terminal if none exists
+        try {
+            vscode.window.activeTerminal.show();
+        } catch (error) {
             vscode.window.createTerminal('bash', 'bash', ['--login']).show();
         }
 
         // Get active terminal PID
-        const activeTerminal = vscode.window.activeTerminal;
+        const activeTerminalPid = await vscode.window.activeTerminal?.processId;
 
         // Map terminal PID to port number
-        updatePidPortMapping(await activeTerminal.processId, port);
-        vscode.window.onDidChangeActiveTerminal((event) => {
-            event.processId.then((pid) => {
-                updatePidPortMapping(pid, port);
-            });
+        updatePidPortMapping(activeTerminalPid, port);
+
+        // Add listener for new terminal PID-Port mapping
+        vscode.window.onDidChangeActiveTerminal(async (event) => {
+            updatePidPortMapping(await event.processId, port);
         });
 
     } catch (error) {
