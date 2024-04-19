@@ -91,7 +91,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
         await vscode.commands.executeCommand("workbench.files.action.focusFilesExplorer");
         await vscode.commands.executeCommand("workbench.files.action.collapseExplorerFolders");
         await vscode.commands.executeCommand("workbench.action.closeAllEditors");
-        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
+        await vscode.commands.executeCommand("workbench.action.focusActivityBar");
     };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 

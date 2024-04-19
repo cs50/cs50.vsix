@@ -43,7 +43,7 @@ export async function activate(context: vscode.ExtensionContext) {
     if (!workbenchConfig['activityBar']['visible']) {
 
         // Use activityBar focus when fixed
-        await vscode.commands.executeCommand("workbench.action.activityBarLocation.side");
+        await vscode.commands.executeCommand("workbench.action.focusActivityBar");
     }
 
     // Parse GitHub preview links as localhost urls
