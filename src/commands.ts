@@ -11,6 +11,23 @@ export function registerCommand(context: vscode.ExtensionContext) {
     }
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
+    // Command: Launch R Studio
+    command = 'cs50.launchRStudio';
+    commandHandler = () => {
+        // check if R studio container is running
+        exec('docker ps | grep rstudio', {
+            'env': process.env
+        }, (error, stdout, stderr) => {
+            console.log(error, stdout, stderr);
+            if (error !== null) {
+                vscode.window.activeTerminal.sendText("rstudio");
+            } else {
+                vscode.env.openExternal(vscode.Uri.parse('http://127.0.0.1:8787'));
+            }
+        });
+    }
+    context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
+
     // Command: Update Codespace
     command = 'cs50.updateCodespace';
     commandHandler = () => {
