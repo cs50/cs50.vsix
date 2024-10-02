@@ -121,7 +121,13 @@ async def launch(program, arguments):
             try:
 
                 # Get the source file name using DW_AT_name (usually would be ${executable}.c or ${executable}.cpp )
-                source = list(filter(lambda source_file: os.path.basename(program) in source_file, get_source_files(program)))[0]
+                all_matches = list(filter(lambda source_file: os.path.basename(program) in source_file, get_source_files(program)))
+
+                for each in all_matches:
+                    if (os.path.basename(program) in os.path.basename(each)):
+                        source = each
+                        break
+
             except:
                 file_not_supported(program)
 
