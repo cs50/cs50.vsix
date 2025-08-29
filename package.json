@@ -7,7 +7,7 @@
     "publisher": "CS50",
     "repository": "https://github.com/cs50/cs50.vsix",
     "engines": {
-        "vscode": "^1.101.0"
+        "vscode": "^1.103.0"
     },
     "categories": [
         "Other"
@@ -96,19 +96,19 @@
         "watch": "tsc -watch -p ./"
     },
     "devDependencies": {
-        "@types/node": "^24.0.10",
+        "@types/node": "^24.3.0",
         "@types/tcp-port-used": "^1.0.4",
-        "@types/vscode": "^1.101.0",
+        "@types/vscode": "^1.103.0",
         "@types/ws": "^8.18.1",
-        "@typescript-eslint/eslint-plugin": "^8.35.1",
-        "@typescript-eslint/parser": "^8.35.1",
+        "@typescript-eslint/eslint-plugin": "^8.41.0",
+        "@typescript-eslint/parser": "^8.41.0",
         "@vscode/vsce": "^3.6.0",
-        "eslint": "^9.30.1",
-        "typescript": "^5.8.3"
+        "eslint": "^9.34.0",
+        "typescript": "^5.9.2"
     },
     "dependencies": {
-        "@types/react": "^19.1.8",
-        "axios": "^1.10.0",
+        "@types/react": "^19.1.12",
+        "axios": "^1.11.0",
         "tcp-port-used": "^1.0.2",
         "ws": "^8.18.3"
     }
