@@ -53,7 +53,10 @@ export async function activate(context: vscode.ExtensionContext) {
     post_launch_tasks();
 
     // Check for updates
-    detectInsiderVersion();
+
+    // Disable insider version detection for now
+    // detectInsiderVersion();
+    
     checkForUpdates();
     checkCS50TokenExpiry();
 
