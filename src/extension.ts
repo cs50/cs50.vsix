@@ -8,6 +8,7 @@ import * as vnc from './vnc';
 import { openPreviewLinkAsLocalhostUrl } from './link_provider';
 import { registerCommand } from './commands';
 import * as fs from 'fs';
+import { exec } from 'child_process';
 
 const DEFAULT_PORT = 1337;
 const WORKSPACE_FOLDER = vscode.workspace.workspaceFolders[0];
@@ -59,6 +60,20 @@ export async function activate(context: vscode.ExtensionContext) {
     
     checkForUpdates();
     checkCS50TokenExpiry();
+
+    // Run the following script to remove "Run" button from Python extensions
+    exec(`for d in ~/.vscode-remote/extensions/ms-python.*; do jq 'del(.contributes.menus."editor/title/run")' "$d/package.json" > "$d/package.json.tmp" && mv -f "$d/package.json.tmp" "$d/package.json"; done`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error executing cleanup script: ${error.message}`);
+        }
+        if (stderr) {
+            console.error(`stderr: ${stderr}`);
+        }
+        if (stdout) {
+            console.log(`stdout: ${stdout}`);
+        }
+    });
+
 
     // Watch ports
     const inUsePorts = new Set([]);
