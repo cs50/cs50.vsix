@@ -11,9 +11,7 @@ import subprocess
 import termcolor
 import time
 
-BFG_VERSION = "1.14.0"
-BFG = f"bfg-{BFG_VERSION}.jar"
-INSTALL_DIR = "/opt/share"
+BFG = "/opt/share/bfg.jar"
 
 def main():
     args = parse_args(sys.argv[1:])
@@ -31,20 +29,12 @@ def main():
         sys.exit(red("Operation aborted."))
 
     try:
-
-        # Check to see if BFG repo cleaner is already installed
-        if not os.path.isfile(f"{INSTALL_DIR}/{BFG}"):
-            print(yellow(f"BFG not found, downloading BFG to {INSTALL_DIR} ..."))
-            subprocess.run(f"wget https://repo1.maven.org/maven2/com/madgag/bfg/{BFG_VERSION}/{BFG} -P {INSTALL_DIR}/",
-                check=True, shell=True, stdout=stdout, stderr=stderr
-            )
-
         print(yellow("Cleaning up unnecessary files and optimizing local repository..."))
         subprocess.run("git gc", check=True, shell=True, stdout=stdout, stderr=stderr)
 
         print(yellow("Running BFG repo cleaner to remove large files from commit history..."))
         commands = ";".join([
-            f"java -jar {INSTALL_DIR}/{BFG} --no-blob-protection --strip-blobs-bigger-than 100M",
+            f"java -jar {BFG} --no-blob-protection --strip-blobs-bigger-than 100M",
             "git reflog expire --expire=now --all",
             "git gc --prune=now --aggressive"
         ])
