@@ -45,7 +45,7 @@ LAUNCH_CONFIG = {
             "MIDebuggerPath": "gdb",
 
             # https://github.com/microsoft/vscode-cpptools/issues/3298
-            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; /bin/gdb -q --interpreter=mi",
+            "miDebuggerArgs": "-q -ex quit; wait() { fg >/dev/null; }; env -u DEBUGINFOD_URLS /bin/gdb -q --interpreter=mi",
 
             "setupCommands": [
                 {
@@ -54,8 +54,28 @@ LAUNCH_CONFIG = {
                     "ignoreFailures": True
                 },
                 {
+                    "description": "Disable debuginfod (avoids stalls in Codespaces)",
+                    "text": "-interpreter-exec console \"set debuginfod enabled off\"",
+                    "ignoreFailures": True
+                },
+                {
+                    "description": "Clear debuginfod URLs (belt-and-suspenders for vDSO lookups)",
+                    "text": "-interpreter-exec console \"set debuginfod urls\"",
+                    "ignoreFailures": True
+                },
+                {
                     "description": "Skip glibc",
                     "text": "-interpreter-exec console \"skip -gfi **/glibc*/**/*.c\""
+                },
+                {
+                    "description": "Skip glibc internals by source dir (matches paths like ./stdio-common/printf.c)",
+                    "text": "-interpreter-exec console \"skip -rfi /(stdio-common|stdio|libio|string|sysdeps|nptl|malloc|stdlib|io|math|time|ctype|posix|misc|elf|signal|wcsmbs|wctype|locale|dirent|inet|setjmp|debug|dlfcn|grp|iconv|nss|pwd|resolv|shadow|socket|sunrpc|sysvipc|termios)/\"",
+                    "ignoreFailures": True
+                },
+                {
+                    "description": "Skip glibc internals by symbol name (catches __vfprintf_internal, __GI_*, __printf_chk, etc.)",
+                    "text": "-interpreter-exec console \"skip -rfunction ^(__|_IO_)\"",
+                    "ignoreFailures": True
                 }
             ]
         },
