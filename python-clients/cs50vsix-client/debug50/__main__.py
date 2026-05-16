@@ -68,8 +68,8 @@ LAUNCH_CONFIG = {
                     "text": "-interpreter-exec console \"skip -gfi **/glibc*/**/*.c\""
                 },
                 {
-                    "description": "Skip glibc internals by source dir (matches paths like ./stdio-common/printf.c)",
-                    "text": "-interpreter-exec console \"skip -rfi /(stdio-common|stdio|libio|string|sysdeps|nptl|malloc|stdlib|io|math|time|ctype|posix|misc|elf|signal|wcsmbs|wctype|locale|dirent|inet|setjmp|debug|dlfcn|grp|iconv|nss|pwd|resolv|shadow|socket|sunrpc|sysvipc|termios)/\"",
+                    "description": "Skip glibc internals by source dir (anchored to recorded relative paths like ./stdio-common/printf.c so user code under /workspaces/... isn't matched)",
+                    "text": "-interpreter-exec console \"skip -rfi ^(\\\\./)?(stdio-common|stdio|libio|string|sysdeps|nptl|malloc|stdlib|io|math|time|ctype|posix|misc|elf|signal|wcsmbs|wctype|locale|dirent|inet|setjmp|debug|dlfcn|grp|iconv|nss|pwd|resolv|shadow|socket|sunrpc|sysvipc|termios)/\"",
                     "ignoreFailures": True
                 },
                 {
