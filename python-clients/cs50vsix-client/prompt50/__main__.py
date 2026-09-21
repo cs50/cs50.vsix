@@ -20,7 +20,7 @@ SOCKET_URI = f"ws://localhost:{DEFAULT_PORT}"
 def main():
     try:
         args = parse_args(sys.argv[1:])
-        asyncio.get_event_loop().run_until_complete(prompt(args.title, args.body, args.action))
+        asyncio.run(prompt(args.title, args.body, args.action))
     except OSError as e:
         message = f"Failed to connect extension server on port {DEFAULT_PORT}.\nPlease visit cs50.dev/restart to restart your codespace."
         print(message)

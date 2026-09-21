@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { exec } from 'child_process';
 
-// eslint-disable-next-line @typescript-eslint/no-var-requires
+ 
 const axios = require('axios').default;
 
 function checkForUpdates() {

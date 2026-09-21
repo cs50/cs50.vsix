@@ -22,5 +22,5 @@ setuptools.setup(
             "prompt50=prompt50.__main__:main"
         ]
     },
-    install_requires=["asyncio", "psutil", "websockets"]
+    install_requires=["psutil", "websockets"]
 )
