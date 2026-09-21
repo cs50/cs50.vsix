@@ -20,8 +20,7 @@ const intervalIds = [];
 
 interface payload {
     'command': string,
-    // eslint-disable-next-line @typescript-eslint/ban-types
-    'payload': Object
+    'payload': Record<string, any>
 }
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -249,7 +248,9 @@ async function startWebsocketServer(port: number, context: vscode.ExtensionConte
             } else {
                 vscode.commands.executeCommand('workbench.explorer.fileView.focus');
             }
-        } catch (error) {}
+        } catch (error) {
+            // lab50 not installed or not active; fall through to notifying the client
+        }
         ws.send('terminated_debugger');
     });
 }

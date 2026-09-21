@@ -85,30 +85,31 @@
         "viewsWelcome": [
             {
                 "view": "cs50-menu",
-                "contents": "Configure Display Language:\n[Language Settings 🌐](command:workbench.action.configureLocale)\nLaunch R Studio:\n[R Studio](command:cs50.launchRStudio)\nLaunch noVNC client to view your GUI program:\n[GUI](command:cs50.launchGUI)\nReset your terminal if it doesn't look right:\n[Reset Terminal](command:cs50.resetTerminal)\nUpdate or Rebuild your Codespace:\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\nSync all changes to your backing repository forcefully via 'git push --force'.\nOnly if you feel it necessary to force sync your current changes to your remote repository:\n[Force Sync Changes](command:cs50.syncChanges)\nIf your Codespace has stopped syncing with its backing repository due to git operation errors (e.g., files larger than 100M were added to commit history), you may want to perform a repository cleanup.\n[WARNING] Make sure you have a backup of your important files before using this tool:\n[Cleanup Repository](command:cs50.cleanupRepository)"
+                "contents": "Configure Display Language:\n[Language Settings \ud83c\udf10](command:workbench.action.configureLocale)\nLaunch R Studio:\n[R Studio](command:cs50.launchRStudio)\nLaunch noVNC client to view your GUI program:\n[GUI](command:cs50.launchGUI)\nReset your terminal if it doesn't look right:\n[Reset Terminal](command:cs50.resetTerminal)\nUpdate or Rebuild your Codespace:\n[Update Codespace](command:cs50.updateCodespace)\n[Rebuild Codespace](command:github.codespaces.rebuildEnvironment)\nSync all changes to your backing repository forcefully via 'git push --force'.\nOnly if you feel it necessary to force sync your current changes to your remote repository:\n[Force Sync Changes](command:cs50.syncChanges)\nIf your Codespace has stopped syncing with its backing repository due to git operation errors (e.g., files larger than 100M were added to commit history), you may want to perform a repository cleanup.\n[WARNING] Make sure you have a backup of your important files before using this tool:\n[Cleanup Repository](command:cs50.cleanupRepository)"
             }
         ]
     },
     "scripts": {
         "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
-        "lint": "eslint . --ext .ts,.tsx",
+        "lint": "eslint src",
         "watch": "tsc -watch -p ./"
     },
     "devDependencies": {
-        "@types/node": "^26.2.0",
+        "@eslint/js": "^10.0.1",
+        "@types/node": "^26.6.2",
         "@types/tcp-port-used": "^1.0.4",
         "@types/vscode": "^1.132.0",
         "@types/ws": "^8.18.1",
-        "@typescript-eslint/eslint-plugin": "^8.67.0",
-        "@typescript-eslint/parser": "^8.67.0",
         "@vscode/vsce": "^3.9.2",
-        "eslint": "^10.8.1",
-        "typescript": "^6.0.3"
+        "eslint": "^10.11.0",
+        "globals": "^17.12.0",
+        "typescript": "^6.0.3",
+        "typescript-eslint": "^8.70.0"
     },
     "dependencies": {
         "@types/react": "^19.2.18",
-        "axios": "^1.19.0",
+        "axios": "^1.20.0",
         "tcp-port-used": "^1.0.3",
         "ws": "^8.21.3"
     }

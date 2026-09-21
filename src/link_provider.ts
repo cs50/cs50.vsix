@@ -46,4 +46,4 @@ function openPreviewLinkAsLocalhostUrl() {
     });
 }
 
-export { openPreviewLinkAsLocalhostUrl }
+export { openPreviewLinkAsLocalhostUrl };

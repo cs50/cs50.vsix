@@ -8,7 +8,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
     let command = 'cs50.launchGUI';
     let commandHandler = () => {
         startVNC();
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Launch R Studio
@@ -25,7 +25,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
                 vscode.env.openExternal(vscode.Uri.parse('http://127.0.0.1:8787'));
             }
         });
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Update Codespace
@@ -36,7 +36,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
         }, (error, stdout, stderr) => {
             console.log(error, stdout, stderr);
         });
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Sync Changes
@@ -53,7 +53,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage(`Successfully synced changes to backing repository. ${stdout}`);
             }
         });
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Cleanup Workspace Repository
@@ -61,7 +61,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
     commandHandler = () => {
         vscode.commands.executeCommand('workbench.action.terminal.focus');
         vscode.window.activeTerminal.sendText('cd $CODESPACE_VSCODE_FOLDER && clean50');
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Open URL in Browser through argument
@@ -82,7 +82,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
             terminal.dispose();
         });
         vscode.window.createTerminal('bash', 'bash', ['--login']).show();
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Return to workspace home
@@ -98,7 +98,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
                 vscode.window.showInformationMessage(message);
             }
         }
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 
     // Command: Reset UI
@@ -117,7 +117,7 @@ export function registerCommand(context: vscode.ExtensionContext) {
     commandHandler = async () => {
         await vscode.commands.executeCommand("cs50.resetUI");
         await vscode.commands.executeCommand("cs50.resetTerminal");
-    }
+    };
     context.subscriptions.push(vscode.commands.registerCommand(command, commandHandler));
 }
 
