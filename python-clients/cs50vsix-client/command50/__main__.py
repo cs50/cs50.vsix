@@ -30,21 +30,22 @@ async def execute(command):
         }
     }
     await websocket.send(json.dumps(payload))
+    await websocket.close()
 
 
 def rebuild():
     command = "github.codespaces.rebuildEnvironment"
-    asyncio.get_event_loop().run_until_complete(execute(command))
+    asyncio.run(execute(command))
 
 
 def main():
     try:
-        asyncio.get_event_loop().run_until_complete(execute(sys.argv[1]))
+        asyncio.run(execute(sys.argv[1]))
     except OSError as e:
         message = f"Failed to connect extension server on port {DEFAULT_PORT}.\nPlease visit cs50.dev/restart to restart your codespace."
         print(message)
-    except Exception:
-        print("command50 ran into error")
+    except Exception as e:
+        print(f"command50 ran into error: {type(e).__name__}: {e}")
 
 
 if __name__ == "__main__":

@@ -34,7 +34,7 @@ async def open_lab():
 
 
 def main():
-    asyncio.get_event_loop().run_until_complete(open_lab())
+    asyncio.run(open_lab())
 
 
 if __name__ == "__main__":

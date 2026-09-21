@@ -100,9 +100,9 @@ LAUNCH_CONFIG = {
 def main():
     args, extra_args = parse_args(sys.argv[1:])
     try:
-        asyncio.get_event_loop().run_until_complete(launch(args.PROGRAM, extra_args))
+        asyncio.run(launch(args.PROGRAM, extra_args))
     except KeyboardInterrupt:
-        asyncio.get_event_loop().run_until_complete(stop_debugger())
+        asyncio.run(stop_debugger())
 
 
 async def launch(program, arguments):
