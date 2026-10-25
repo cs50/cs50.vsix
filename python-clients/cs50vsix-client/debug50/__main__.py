@@ -64,17 +64,13 @@ LAUNCH_CONFIG = {
                     "ignoreFailures": True
                 },
                 {
-                    "description": "Skip glibc",
-                    "text": "-interpreter-exec console \"skip -gfi **/glibc*/**/*.c\""
-                },
-                {
-                    "description": "Skip glibc internals by source dir (anchored to recorded relative paths like ./stdio-common/printf.c so user code under /workspaces/... isn't matched)",
-                    "text": "-interpreter-exec console \"skip -rfi ^(\\\\./)?(stdio-common|stdio|libio|string|sysdeps|nptl|malloc|stdlib|io|math|time|ctype|posix|misc|elf|signal|wcsmbs|wctype|locale|dirent|inet|setjmp|debug|dlfcn|grp|iconv|nss|pwd|resolv|shadow|socket|sunrpc|sysvipc|termios)/\"",
-                    "ignoreFailures": True
-                },
-                {
-                    "description": "Skip glibc internals by symbol name (catches __vfprintf_internal, __GI_*, __printf_chk, etc.)",
-                    "text": "-interpreter-exec console \"skip -rfunction ^(__|_IO_)\"",
+                    # gdb can skip by file too, but not reliably: the recorded names are relative (./stdio-common/printf.c),
+                    # -rfile does not exist, and gdb 17's -gfile (Ubuntu 26.04) inverts its result for any pattern with a
+                    # wildcard, skipping the student's own helpers.c instead. Function names are stable across gdb versions.
+                    # Leading underscore covers glibc's internal and aliased symbols (__GI_puts, _IO_puts, __libc_malloc);
+                    # the list names the plain-named entry points and static helpers that the prefix misses.
+                    "description": "Skip glibc by function name, so stepping stays in the student's code",
+                    "text": "-interpreter-exec console \"skip -rfunction ^(_|(str_to_mpn|round_and_return|get_rounding_mode|round_away|write_state|translate|asctime_internal|index|rindex|rand|random|srand|srandom|rand_r|atof|atoi|atol|atoll|strtod|strtof|strtold|strtol|strtoll|strtoul|strtoull|strtok|strncat|strerror|putchar|fputc|getc|putc|div|ldiv|usleep|clock|ctime|asctime|rename|raise)$)\"",
                     "ignoreFailures": True
                 }
             ]

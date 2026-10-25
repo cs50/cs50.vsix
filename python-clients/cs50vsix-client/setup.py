@@ -9,7 +9,7 @@ setuptools.setup(
     url="https://github.com/cs50/cs50vsix",
     license="GPLv3",
     classifiers=[
-        "Programming Language :: Python :: 3.6"
+        "Programming Language :: Python :: 3"
     ],
     packages=["clean50", "command50", "debug50", "lab50", "prompt50", "cs50vsixutils"],
     entry_points={
